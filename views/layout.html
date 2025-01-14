@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WoW Checker</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+
+<body class="text-white">
+    <div class="container bg-dark mt-5 p-5 rounded">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-center">WoW Armory</h1>
+                {{ template "form" . }}
+            </div>
+        </div>
+    </div>
+    {{ if .Name }}
+        {{ template "character" . }}
+    {{ else }}
+    {{ end }}
+</body>
+
+</html>
