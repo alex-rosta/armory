@@ -23,11 +23,11 @@
     {{ if .MainRawImage }}
     <img src="{{ .MainRawImage }}" class="img-fluid" alt="Main Image">
     {{ end }}
-    <div class="mx-3 text-center mr-3 ml-3 text-justify">
-        <strong class="bi bi-heart-half mr-3 ml-3 text-success" style="font-size: 1.5em"> Health {{ .Health }} </strong>
-        <strong class="bi bi-lightning mr-3 ml-3 text-warning" style="font-size: 1.5em"> {{ .PowerType.Name }} {{ .Power
+    <div class="text-center">
+        <strong class="bi bi-heart-half text-success" style="font-size: 1.5em"> Health {{ .Health }} </strong>
+        <strong class="bi bi-lightning text-warning" style="font-size: 1.5em"> {{ .PowerType.Name }} {{ .Power
             }} </strong>
-        <strong class="bi bi-shield-plus mr-3 ml-3 text-primary" style="font-size: 1.5em"> Stamina {{ .Stamina.Effective
+        <strong class="bi bi-shield-plus text-primary" style="font-size: 1.5em"> Stamina {{ .Stamina.Effective
             }} </strong>
     </div>
 </div>

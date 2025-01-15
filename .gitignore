@@ -5,7 +5,9 @@
 *.so
 *.dylib
 .env
-tmp/
+/tmp
+.air.toml
+/images
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
@@ -31,3 +33,4 @@ go-test-cache/
 *~
 .DS_Store
 Thumbs.db
+/node_modules
