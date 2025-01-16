@@ -9,6 +9,12 @@ import (
 
 func main() {
 
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+		return
+	}
+
 	fileServer := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if filepath.Ext(r.URL.Path) == ".css" {

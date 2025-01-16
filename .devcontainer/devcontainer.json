@@ -1,0 +1,21 @@
+{
+  "name": "Go Dev Container",
+  "image": "golang:1.23.4", // Replace with your desired Go version
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },
+  "settings": {
+    "go.gopath": "/go"
+  },
+  "extensions": [
+    "golang.go" // Go extension for VS Code
+  ],
+  "envFile": ".env", // Optional: Load environment variables from a file
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  ],
+  "postCreateCommand": "go mod tidy", // Optional: Run after container creation
+  "forwardPorts": [3000], // Add ports your app listens on
+  "workspaceFolder": "/workspace",
+  "remoteUser": "root" // Adjust as needed
+}

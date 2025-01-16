@@ -1,6 +1,9 @@
 # Use the official Golang image as the base image for building
 FROM golang:1.23.4-alpine AS build
 
+# Install necessary packages
+RUN apk add --no-cache git
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
@@ -16,20 +19,17 @@ COPY . .
 # Build the Go app
 RUN go build -o /app/main .
 
-# Use a minimal base image to reduce the size of the final image
-FROM golang:1.23.4-alpine
+# Use a smaller base image for the final container
+FROM alpine:latest
+
+# Install necessary packages
+RUN apk add --no-cache ca-certificates
 
 # Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# Copy the Pre-built binary file and source files from the builder stage
+# Copy the built Go app from the build stage
 COPY --from=build /app/main .
-COPY --from=build /app/assets ./assets
-COPY --from=build /app/views ./views
-COPY --from=build /app/*.go ./
-
-# Expose port 3000 to the outside world
-EXPOSE 3000
 
 # Command to run the executable
 CMD ["./main"]
