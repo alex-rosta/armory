@@ -5,17 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"wowchecker/pkg/handlers"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file", err)
-		return
-	}
 
 	fileServer := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
