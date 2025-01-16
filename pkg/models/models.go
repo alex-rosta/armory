@@ -28,20 +28,6 @@ type CharacterProfile struct {
 	} `json:"stamina"`
 }
 
-type TitlesOwned struct {
-	Titles []struct {
-		Name string `json:"name"`
-	} `json:"titles"`
-}
-
-type MountsOwned struct {
-	Mounts []struct {
-		Mount struct {
-			Name string `json:"name"`
-		} `json:"mount"`
-	} `json:"mounts"`
-}
-
 type CharacterMedia struct {
 	Assets []struct {
 		Key   string `json:"key"`
@@ -63,8 +49,6 @@ type CharacterData struct {
 	Class struct {
 		Name string
 	}
-	Titles          TitlesOwned
-	Mounts          MountsOwned
 	CharacterImages CharacterMedia
 	MainRawImage    string
 	Guild           struct {

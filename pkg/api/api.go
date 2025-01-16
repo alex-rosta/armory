@@ -51,8 +51,6 @@ func GetAccessToken(region string) (string, error) {
 func GetCharacterProfile(accessToken, region, realm, character string) (map[string]interface{}, error) {
 	endpoints := []string{
 		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
-		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/collections/mounts?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
-		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/titles?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
 		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/character-media?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
 		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/statistics?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
 	}

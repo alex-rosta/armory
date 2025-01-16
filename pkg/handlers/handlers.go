@@ -37,48 +37,6 @@ func LookupCharacter(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		titles := models.TitlesOwned{
-			Titles: []struct {
-				Name string `json:"name"`
-			}{},
-		}
-
-		mounts := models.MountsOwned{
-			Mounts: []struct {
-				Mount struct {
-					Name string `json:"name"`
-				} `json:"mount"`
-			}{},
-		}
-
-		if titlesData, ok := profileData["titles"].([]interface{}); ok {
-			for _, title := range titlesData {
-				titleMap := title.(map[string]interface{})
-				titles.Titles = append(titles.Titles, struct {
-					Name string `json:"name"`
-				}{
-					Name: titleMap["name"].(string),
-				})
-			}
-		}
-
-		if mountsData, ok := profileData["mounts"].([]interface{}); ok {
-			for _, mount := range mountsData {
-				mountMap := mount.(map[string]interface{})
-				mounts.Mounts = append(mounts.Mounts, struct {
-					Mount struct {
-						Name string `json:"name"`
-					} `json:"mount"`
-				}{
-					Mount: struct {
-						Name string `json:"name"`
-					}{
-						Name: mountMap["mount"].(map[string]interface{})["name"].(string),
-					},
-				})
-			}
-		}
-
 		characterimages := models.CharacterMedia{
 			Assets: []struct {
 				Key   string `json:"key"`
@@ -108,8 +66,6 @@ func LookupCharacter(w http.ResponseWriter, r *http.Request) {
 			AchievementPoints: int(profileData["achievement_points"].(float64)),
 			ActiveSpec:        struct{ Name string }{Name: profileData["active_spec"].(map[string]interface{})["name"].(string)},
 			Class:             struct{ Name string }{Name: profileData["character_class"].(map[string]interface{})["name"].(string)},
-			Titles:            titles,
-			Mounts:            mounts,
 			CharacterImages:   characterimages,
 			MainRawImage:      characterimages.GetMainRawImage(),
 			Guild:             struct{ Name string }{Name: GetStringValue(profileData, "guild", "name")},
