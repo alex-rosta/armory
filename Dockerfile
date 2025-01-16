@@ -28,8 +28,13 @@ RUN apk add --no-cache ca-certificates
 # Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# Copy the built Go app from the build stage
+# Copy the built Go app and html from the build stage
 COPY --from=build /app/main .
+COPY --from=build /app/assets ./assets
+COPY --from=build /app/views ./views
+COPY --from=build /app/*.go ./
+
+EXPOSE 3000
 
 # Command to run the executable
 CMD ["./main"]
