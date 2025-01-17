@@ -9,14 +9,14 @@ import (
 	"strings"
 )
 
-func GetAccessToken(region string) (string, error) {
+func GetAccessToken() (string, error) {
 	clientID, clientSecret := os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
 		return "", fmt.Errorf("missing client ID or client secret")
 	}
 
-	url := fmt.Sprintf("https://%s.battle.net/oauth/token", region)
+	url := "https://oauth.battle.net/oauth/token"
 	req, err := http.NewRequest("POST", url, strings.NewReader("grant_type=client_credentials"))
 	if err != nil {
 		return "", err
@@ -79,7 +79,6 @@ func GetCharacterProfile(accessToken, region, realm, character string) (map[stri
 			combinedData[k] = v
 		}
 	}
-
 	return combinedData, nil
 }
 

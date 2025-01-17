@@ -64,8 +64,8 @@ type CharacterData struct {
 	}
 }
 
-func (cm *CharacterMedia) GetMainRawImage() string {
-	for _, asset := range cm.Assets {
+func (bigmedia *CharacterMedia) GetMainRawImage() string {
+	for _, asset := range bigmedia.Assets {
 		if asset.Key == "main-raw" {
 			return asset.Value
 		}

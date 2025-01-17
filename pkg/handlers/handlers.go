@@ -25,7 +25,7 @@ func LookupCharacter(w http.ResponseWriter, r *http.Request) {
 	data := models.CharacterData{}
 
 	if region != "" && realm != "" && character != "" {
-		accessToken, err := api.GetAccessToken(region)
+		accessToken, err := api.GetAccessToken()
 		if err != nil {
 			http.Error(w, "Error getting access token: "+err.Error(), http.StatusInternalServerError)
 			return

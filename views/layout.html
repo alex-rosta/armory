@@ -9,9 +9,22 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-image: url('/assets/media/wow-bg.png');
+            background-size: cover;
+            backdrop-filter: blur(5px);
+        }
+        body {
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 
-<body class="text-white font-mono" style="background-image: url('/assets/media/wow-bg.png'); background-size: cover; backdrop-filter: blur(5px);">
+<body class="text-white font-mono">
     <div class="container bg-dark mt-5 p-5 rounded">
         <div class="row">
             <div class="col-md-12">
@@ -20,10 +33,9 @@
             </div>
         </div>
     </div>
+</body>
     {{ if .Name }}
         {{ template "character" . }}
     {{ else }}
     {{ end }}
-</body>
-
 </html>
