@@ -13,7 +13,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Warning: Error loading .env file, continuing without it")
+		fmt.Println("Warning: Error loading .env file, continuing without it. Ignore this if running as container.")
 	}
 
 	fileServer := http.FileServer(http.Dir("assets"))
