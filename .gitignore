@@ -35,3 +35,5 @@ go-test-cache/
 .DS_Store
 Thumbs.db
 /node_modules
+wowarmory
+*.log

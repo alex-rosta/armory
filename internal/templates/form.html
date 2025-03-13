@@ -1,0 +1,54 @@
+{{ define "form" }}
+<div class="container">
+    <form action="/" method="get" class="needs-validation" novalidate>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="region" class="form-label">Region</label>
+                <select class="form-select" id="region" name="region" required>
+                    <option value="eu">EU</option>
+                    <option value="us">US</option>
+                </select>
+                <div class="invalid-feedback">
+                    Please select a region.
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="realm" class="form-label">Realm</label>
+                <input type="text" class="form-control" id="realm" name="realm" placeholder="e.g., darkspear" required>
+                <div class="invalid-feedback">
+                    Please enter a realm name.
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="character" class="form-label">Character Name</label>
+                <input type="text" class="form-control" id="character" name="character" placeholder="e.g., tempests" required>
+                <div class="invalid-feedback">
+                    Please enter a character name.
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Look Up Character</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{{ end }}

@@ -1,6 +1,6 @@
 module.exports = {
   content: [
-    './views/**/*.html',
+    './internal/templates/**/*.html',
     './assets/css/**/*.css',
   ],
   theme: {

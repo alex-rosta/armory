@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o /app/main .
+RUN go build -o /app/wowarmory cmd/server/main.go
 
 # Use a smaller base image for the final container
 FROM alpine:latest
@@ -28,13 +28,12 @@ RUN apk add --no-cache ca-certificates
 # Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# Copy the built Go app and html from the build stage
-COPY --from=build /app/main .
+# Copy the built Go app and assets from the build stage
+COPY --from=build /app/wowarmory .
 COPY --from=build /app/assets ./assets
-COPY --from=build /app/views ./views
-COPY --from=build /app/*.go ./
+COPY --from=build /app/internal/templates ./internal/templates
 
 EXPOSE 3000
 
 # Command to run the executable
-CMD ["./main"]
+CMD ["./wowarmory"]

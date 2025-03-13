@@ -1,4 +1,4 @@
-module wowchecker
+module wowarmory
 
 go 1.23.4
 
