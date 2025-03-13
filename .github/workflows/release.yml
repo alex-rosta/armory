@@ -39,5 +39,5 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker login alexrsit -p ${{ secrets.DOCKER_PAT }}
+          echo ${{ secrets.DOCKER_TOKEN }} | docker login --username alexrsit --password-stdin
           docker push alexrsit/armory:latest
