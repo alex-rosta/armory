@@ -37,9 +37,9 @@ func NewCharacterHandler(cfg *config.Config, blizzardClient *api.BlizzardClient)
 // LookupCharacter handles the character lookup request
 func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Request) {
 	// Get query parameters
-	region := r.URL.Query().Get("region")
-	realm := r.URL.Query().Get("realm")
-	character := r.URL.Query().Get("character")
+	region := strings.ToLower(r.URL.Query().Get("region"))
+	realm := strings.ToLower(r.URL.Query().Get("realm"))
+	character := strings.ToLower(r.URL.Query().Get("character"))
 
 	// Initialize empty character data
 	data := models.CharacterData{}
