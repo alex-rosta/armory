@@ -1,6 +1,6 @@
 {{ define "form" }}
 <div class="container">
-    <form action="/" method="get" class="needs-validation" novalidate>
+    <form hx-get="/character" hx-target="#character-result" hx-indicator="#spinner" class="needs-validation" novalidate>
         <div class="row">
             <div class="col-md-4 mb-3">
                 <label for="region" class="form-label">Region</label>
@@ -28,10 +28,15 @@
             </div>
         </div>
         <div class="text-center mt-3">
-            <button type="submit" class="btn btn-primary">Look Up Character</button>
+            <button type="submit" class="btn btn-primary">
+                <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status" aria-hidden="true"></span>
+                Look Up Character
+            </button>
         </div>
     </form>
 </div>
+
+<div id="character-result" class="mt-4"></div>
 
 <script>
 // Form validation
@@ -40,6 +45,15 @@
     window.addEventListener('load', function() {
         var forms = document.getElementsByClassName('needs-validation');
         var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('htmx:validate', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+            
+            // Also handle regular submit for non-htmx fallback
             form.addEventListener('submit', function(event) {
                 if (form.checkValidity() === false) {
                     event.preventDefault();
@@ -50,5 +64,14 @@
         });
     }, false);
 })();
+
+// Show spinner during htmx requests
+document.body.addEventListener('htmx:beforeRequest', function(event) {
+    document.getElementById('spinner').classList.remove('d-none');
+});
+
+document.body.addEventListener('htmx:afterRequest', function(event) {
+    document.getElementById('spinner').classList.add('d-none');
+});
 </script>
 {{ end }}

@@ -1,5 +1,6 @@
 {{ define "character" }}
-<div class="container">
+<div class="character-container">
+  <div class="container">
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card bg-dark text-white border-0">
@@ -51,7 +52,7 @@
                         <div class="col-md-8">
                             {{ if .MainRawImage }}
                             <div class="character-image text-center">
-                                <img src="{{ .MainRawImage }}" class="img-fluid rounded" alt="{{ .Name }} character image">
+                                <img src="{{ .MainRawImage }}" class="img-fluid rounded transition-transform duration-300 ease-in-out scale-125 hover:scale-150" alt="{{ .Name }} character image">
                             </div>
                             {{ end }}
                         </div>

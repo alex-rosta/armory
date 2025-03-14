@@ -30,6 +30,7 @@ func (r *Router) Setup(characterHandler *handlers.CharacterHandler) {
 
 	// Set up routes
 	r.mux.HandleFunc("/", characterHandler.LookupCharacter)
+	r.mux.HandleFunc("/character", characterHandler.GetCharacterTemplate)
 }
 
 // ServeHTTP implements the http.Handler interface
