@@ -3,53 +3,53 @@
 @tailwind utilities;
 
 .Warrior {
-    background-color: #C79C6E;
-  }
-  
-  .Paladin {
-    background-color: #F58CBA;
-  }
-  
-  .Hunter {
-    background-color: #ABD473;
-  }
-  
-  .Rogue {
-    background-color: #FFF569;
-  }
-  
-  .Priest {
-    background-color: #FFFFFF;
-  }
-  
-  .Deathknight {
-    background-color: #C41F3B;
-  }
-  
-  .Shaman {
-    background-color: #0070DE;
-  }
-  
-  .Mage {
-    background-color: #69CCF0;
-  }
-  
-  .Warlock {
-    background-color: #9482C9;
-  }
-  
-  .Monk {
-    background-color: #00FF96;
-  }
-  
-  .Druid {
-    background-color: #FF7D0A;
-  }
-  
-  .Demonhunter {
-    background-color: #A330C9;
-  }
-  
-  .Evoker {
-    background-color: #33937F;
-  }
+  background: linear-gradient(45deg, #C79C6E, #8B4513);
+}
+
+.Paladin {
+  background: linear-gradient(45deg, #F58CBA, #C2185B);
+}
+
+.Hunter {
+  background: linear-gradient(45deg, #ABD473, #6B8E23);
+}
+
+.Rogue {
+  background: linear-gradient(45deg, #FFF569, #FFD700);
+}
+
+.Priest {
+  background: linear-gradient(45deg, #FFFFFF, #D3D3D3);
+}
+
+.Death {
+  background: linear-gradient(45deg, #C41F3B, #8B0000);
+}
+
+.Shaman {
+  background: linear-gradient(45deg, #0070DE, #1E90FF);
+}
+
+.Mage {
+  background: linear-gradient(45deg, #69CCF0, #4682B4);
+}
+
+.Warlock {
+  background: linear-gradient(45deg, #9482C9, #4B0082);
+}
+
+.Monk {
+  background: linear-gradient(45deg, #00FF96, #008000);
+}
+
+.Druid {
+  background: linear-gradient(45deg, #FF7D0A, #FF4500);
+}
+
+.Demon {
+  background: linear-gradient(45deg, #A330C9, #800080);
+}
+
+.Evoker {
+  background: linear-gradient(45deg, #33937F, #006400);
+}

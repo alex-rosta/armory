@@ -3,8 +3,8 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card bg-dark text-white border-0">
-                <div class="card-header {{ .Class.Name }}">
-                    <div class="d-flex align-items-center">
+                <div class="card-header">
+                    <div class="d-flex align-items-center {{ .Class.Name }} rounded-lg">
                         <div class="faction-icon me-3">
                             {{ if eq .Faction.Name "Horde" }}
                             <img src="/assets/media/horde.png" alt="Horde" class="img-fluid" style="max-width: 80px;">
