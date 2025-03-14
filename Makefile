@@ -33,6 +33,9 @@ vet:
 dev: build
 	./$(BINARY_NAME)
 
+css: 
+	npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/styles.css --watch
+
 # Build Docker image
 docker-build:
 	docker build -t $(BINARY_NAME) .
