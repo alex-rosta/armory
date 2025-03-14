@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
-
+	"strings"
 	"wowarmory/internal/api"
 	"wowarmory/internal/config"
 	"wowarmory/internal/models"
