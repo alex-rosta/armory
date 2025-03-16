@@ -33,7 +33,13 @@ COPY --from=build /app/wowarmory .
 COPY --from=build /app/assets ./assets
 COPY --from=build /app/internal/templates ./internal/templates
 
+# Expose the port the app runs on
 EXPOSE 3000
+
+# Environment variables with defaults
+#ENV REDIS_ADDR=redis:6379
+#ENV REDIS_PASSWORD=
+#ENV REDIS_DB=0
 
 # Command to run the executable
 CMD ["./wowarmory"]

@@ -15,6 +15,14 @@ type Config struct {
 	ClientSecret string
 	TemplatesDir string
 	AssetsDir    string
+	Redis        RedisConfig
+}
+
+// RedisConfig holds Redis-specific configuration
+type RedisConfig struct {
+	Addr     string
+	Password string
+	DB       int
 }
 
 // Load loads the configuration from environment variables
@@ -47,11 +55,33 @@ func Load() (*Config, error) {
 	templatesDir := "internal/templates"
 	assetsDir := "assets"
 
+	// Get Redis configuration from environment variables or use defaults
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379" // Default Redis address
+	}
+
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	redisDBStr := os.Getenv("REDIS_DB")
+	redisDB := 0 // Default Redis DB
+	if redisDBStr != "" {
+		redisDBInt, err := strconv.Atoi(redisDBStr)
+		if err == nil {
+			redisDB = redisDBInt
+		}
+	}
+
 	return &Config{
 		Port:         port,
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		TemplatesDir: templatesDir,
 		AssetsDir:    assetsDir,
+		Redis: RedisConfig{
+			Addr:     redisAddr,
+			Password: redisPassword,
+			DB:       redisDB,
+		},
 	}, nil
 }

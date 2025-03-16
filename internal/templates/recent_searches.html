@@ -1,0 +1,77 @@
+{{ define "recent_searches" }}
+<div class="container">
+    <h2 class="mb-4">Recent Character Searches (Last 24 Hours)</h2>
+    
+    {{ if .Searches }}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>Character</th>
+                        <th>Realm</th>
+                        <th>Region</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Searches }}
+                    <tr>
+                        <td class="character-name">{{ .Character }}</td>
+                        <td class="realm-name">{{ .Realm }}</td>
+                        <td>{{ .Region }}</td>
+                        <td>{{ .Timestamp.Format "Jan 02, 2006 15:04:05" }}</td>
+                        <td>
+                            <a href="/?region={{ .Region }}&realm={{ .Realm }}&character={{ .Character }}"
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-search"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <p class="text-muted">
+                <i class="bi bi-info-circle"></i> 
+                Showing the most recent {{ len .Searches }} searches from the last 24 hours.
+            </p>
+        </div>
+    {{ else }}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No recent searches found. Try searching for a character!
+        </div>
+    {{ end }}
+    
+    <div class="mt-4 text-center">
+        <a href="/" class="btn btn-primary">
+            <i class="bi bi-search"></i> Search for a Character
+        </a>
+    </div>
+</div>
+
+<script>
+    // Function to format character names with first letter capitalized
+    function titleCase(str) {
+        return str.toLowerCase().split(' ').map(function(word) {
+            return (word.charAt(0).toUpperCase() + word.slice(1));
+        }).join(' ');
+    }
+    
+    // Apply title case to character and realm names
+    document.addEventListener('DOMContentLoaded', function() {
+        const characterCells = document.querySelectorAll('td:first-child');
+        const realmCells = document.querySelectorAll('td:nth-child(2)');
+        
+        characterCells.forEach(cell => {
+            cell.textContent = titleCase(cell.textContent);
+        });
+        
+        realmCells.forEach(cell => {
+            cell.textContent = titleCase(cell.textContent);
+        });
+    });
+</script>
+{{ end }}

@@ -9,20 +9,30 @@ https://armory.rosta.dev
 - Display of character information including level, item level, achievement points, etc.
 - Display of character images
 - Support for both Horde and Alliance factions
+- Global recent searches tracking with Redis (last 24 hours)
 
 ## Prerequisites
 
 - Go 1.18 or higher
 - Blizzard API credentials (Client ID and Client Secret)
+- Redis server (for recent searches feature)
 
 ## Configuration
 
 Create a `.env` file in the root directory with the following content:
 
 ```
+# Blizzard API credentials
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
+
+# Server configuration
 PORT=3000
+
+# Redis configuration
+REDIS_ADDR=localhost:6379
+REDIS_PASSWORD=
+REDIS_DB=0
 ```
 
 ## Running the Application
@@ -38,6 +48,9 @@ go build
 # Using Docker
 docker build -t wowarmory .
 docker run -p 3000:3000 --env-file .env wowarmory
+
+# Using Docker Compose (includes Redis)
+docker-compose up -d
 ```
 
 The application will be available at http://localhost:3000
@@ -73,6 +86,3 @@ wowarmory/
 └── README.md                # Project documentation
 ```
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.

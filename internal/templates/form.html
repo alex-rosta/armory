@@ -43,6 +43,31 @@
 (function() {
     'use strict';
     window.addEventListener('load', function() {
+        // Check URL parameters and pre-fill form fields
+        const urlParams = new URLSearchParams(window.location.search);
+        const region = urlParams.get('region');
+        const realm = urlParams.get('realm');
+        const character = urlParams.get('character');
+        
+        if (region) {
+            document.getElementById('region').value = region.toLowerCase();
+        }
+        
+        if (realm) {
+            document.getElementById('realm').value = realm.toLowerCase();
+        }
+        
+        if (character) {
+            document.getElementById('character').value = character.toLowerCase();
+        }
+        
+        // If all parameters are present, automatically submit the form
+        if (region && realm && character) {
+            // Slight delay to ensure the form is fully loaded
+            setTimeout(function() {
+                document.querySelector('form button[type="submit"]').click();
+            }, 100);
+        }
         var forms = document.getElementsByClassName('needs-validation');
         var validation = Array.prototype.filter.call(forms, function(form) {
             form.addEventListener('htmx:validate', function(event) {

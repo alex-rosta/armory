@@ -23,7 +23,7 @@ func New(cfg *config.Config) *Router {
 }
 
 // Setup sets up the routes for the application
-func (r *Router) Setup(characterHandler *handlers.CharacterHandler) {
+func (r *Router) Setup(characterHandler *handlers.CharacterHandler, recentSearchesHandler *handlers.RecentSearchesHandler) {
 	// Set up static file server
 	fileServer := http.FileServer(http.Dir(r.config.AssetsDir))
 	r.mux.Handle("/assets/", http.StripPrefix("/assets/", middleware.ContentTypeMiddleware(fileServer)))
@@ -31,6 +31,8 @@ func (r *Router) Setup(characterHandler *handlers.CharacterHandler) {
 	// Set up routes
 	r.mux.HandleFunc("/", characterHandler.LookupCharacter)
 	r.mux.HandleFunc("/character", characterHandler.GetCharacterTemplate)
+	r.mux.HandleFunc("/recent-searches", recentSearchesHandler.GetRecentSearchesPage)
+	r.mux.HandleFunc("/recent-searches-data", recentSearchesHandler.GetRecentSearches)
 }
 
 // ServeHTTP implements the http.Handler interface

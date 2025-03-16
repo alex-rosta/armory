@@ -1,25 +1,34 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 	"wowarmory/internal/api"
 	"wowarmory/internal/config"
 	"wowarmory/internal/models"
+	redisClient "wowarmory/internal/redis"
 )
 
 // CharacterHandler handles character-related HTTP requests
 type CharacterHandler struct {
 	config         *config.Config
 	blizzardClient *api.BlizzardClient
+	redisClient    *redisClient.Client
 	templates      *template.Template
 }
 
+// GetTemplates returns the templates used by the handler
+func (h *CharacterHandler) GetTemplates() *template.Template {
+	return h.templates
+}
+
 // NewCharacterHandler creates a new CharacterHandler
-func NewCharacterHandler(cfg *config.Config, blizzardClient *api.BlizzardClient) (*CharacterHandler, error) {
+func NewCharacterHandler(cfg *config.Config, blizzardClient *api.BlizzardClient, redisClient *redisClient.Client) (*CharacterHandler, error) {
 	// Parse templates
 	templatesPath := filepath.Join(cfg.TemplatesDir, "*.html")
 	tmpl, err := template.ParseGlob(templatesPath)
@@ -30,6 +39,7 @@ func NewCharacterHandler(cfg *config.Config, blizzardClient *api.BlizzardClient)
 	return &CharacterHandler{
 		config:         cfg,
 		blizzardClient: blizzardClient,
+		redisClient:    redisClient,
 		templates:      tmpl,
 	}, nil
 }
@@ -59,6 +69,9 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// We'll record the search in Redis only if the character lookup is successful
+	// So we'll move this code after the character lookup
+
 	// Get access token
 	accessToken, err := h.blizzardClient.GetAccessToken()
 	if err != nil {
@@ -78,6 +91,15 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	if err != nil {
 		http.Error(w, "Error processing character data: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	// Record the successful search in Redis
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	if err := h.redisClient.RecordSearch(ctx, region, realm, character); err != nil {
+		// Log the error but continue with the request
+		fmt.Printf("Error recording search: %v\n", err)
 	}
 
 	// Set content type
