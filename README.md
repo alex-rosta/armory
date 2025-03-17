@@ -3,12 +3,15 @@
 A web application that allows users to look up World of Warcraft character information using the Blizzard API.
 https://armory.rosta.dev
 
+## Helmchart
+
+https://github.com/alexrsit/armory-helm
+
 ## Features
 
 - Character lookup by region, realm, and name
 - Display of character information including level, item level, achievement points, etc.
 - Display of character images
-- Support for both Horde and Alliance factions
 - Global recent searches tracking with Redis (last 24 hours)
 
 ## Prerequisites
@@ -26,7 +29,7 @@ Create a `.env` file in the root directory with the following content:
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
 
-# Server configuration
+# App is exposed on this port
 PORT=3000
 
 # Redis configuration
@@ -38,6 +41,10 @@ REDIS_DB=0
 ## Running the Application
 
 ```bash
+# Redis locally
+docker pull redis:latest && docker run -p 6379:6379 redis
+
+```bash
 # Run directly
 go run main.go
 
@@ -47,10 +54,10 @@ go build
 
 # Using Docker
 docker build -t wowarmory .
-docker run -p 3000:3000 --env-file .env wowarmory
+docker run -p 3000:3000 --env-file .env wowarmory #pass local .env file
 
 # Using Docker Compose (includes Redis)
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 The application will be available at http://localhost:3000
@@ -71,10 +78,9 @@ wowarmory/
 │   ├── handlers/            # HTTP handlers
 │   ├── middleware/          # HTTP middleware
 │   ├── models/              # Data models
+    ├── redis/               # Redis client and logic
 │   ├── router/              # HTTP router
 │   └── templates/           # HTML templates
-├── pkg/                     # Public libraries
-├── views/                   # HTML templates (to be moved to internal/templates)
 ├── .dockerignore            # Docker ignore file
 ├── .env                     # Environment variables (not in version control)
 ├── .env.example             # Example environment variables
