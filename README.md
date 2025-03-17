@@ -44,7 +44,6 @@ REDIS_DB=0
 # Redis locally
 docker pull redis:latest && docker run -p 6379:6379 redis
 
-```bash
 # Run directly
 go run main.go
 
