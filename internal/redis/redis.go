@@ -91,6 +91,9 @@ func (c *Client) RecordSearch(ctx context.Context, region, realm, character stri
 	// Trim the sorted set to keep only the most recent searches
 	pipe.ZRemRangeByRank(ctx, RecentSearchesKey, 0, -MaxRecentSearches-1)
 
+	// Expire the sorted set after set time period
+	pipe.Expire(ctx, RecentSearchesKey, time.Hour*SearchExpirationHours)
+
 	// Execute the pipeline
 	_, err = pipe.Exec(ctx)
 	if err != nil {
