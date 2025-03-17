@@ -77,7 +77,7 @@ wowarmory/
 │   ├── handlers/            # HTTP handlers
 │   ├── middleware/          # HTTP middleware
 │   ├── models/              # Data models
-    ├── redis/               # Redis client and logic
+│   ├── redis/               # Redis client and logic
 │   ├── router/              # HTTP router
 │   └── templates/           # HTML templates
 ├── .dockerignore            # Docker ignore file
