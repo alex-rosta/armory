@@ -141,7 +141,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 	// Parse the JSON data into search entries
 	entries := make([]SearchEntry, 0, len(keys))
 
-	for _, cmd := range cmds {
+	for i, cmd := range cmds {
 		// Skip entries that no longer exist (may have expired)
 		val, err := cmd.Result()
 		if err == redis.Nil {
@@ -155,9 +155,17 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 		if err := json.Unmarshal([]byte(val), &entry); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal search entry: %w", err)
 		}
+		// Expire search entries after a specified time, delete them
+		if time.Since(entry.Timestamp) > time.Hour*SearchExpirationHours {
+			if err := c.rdb.Del(ctx, keys[i]).Err(); c.rdb.ZRem(ctx, RecentSearchesKey, keys[i]).Err() != nil {
+				return nil, fmt.Errorf("failed to delete expired search entry: %w", err)
+			}
+			continue
+		}
 
 		entries = append(entries, entry)
 	}
 
 	return entries, nil
+
 }
