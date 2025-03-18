@@ -63,7 +63,6 @@ func Load() (*Config, error) {
 	}
 
 	redisPassword := strings.Trim(os.Getenv("REDIS_PASSWORD"), "'")
-	fmt.Println("redisPassword: ", redisPassword)
 
 	redisDBStr := os.Getenv("REDIS_DB")
 	redisDB := 0 // Default Redis DB
