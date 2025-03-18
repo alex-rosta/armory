@@ -13,6 +13,7 @@ https://github.com/alexrsit/armory-helm
 - Display of character information including level, item level, achievement points, etc.
 - Display of character images
 - Global recent searches tracking with Redis (last 24 hours)
+- Azure Cache for Redis (Tested, probably works on AWS or GCP aswell)
 
 ## Prerequisites
 
@@ -36,6 +37,8 @@ PORT=3000
 REDIS_ADDR=localhost:6379
 REDIS_PASSWORD=
 REDIS_DB=0
+# Uncomment this if using Redis on Cloud Providers
+#REDIS_CLOUD=true
 ```
 
 ## Running the Application

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -61,7 +62,8 @@ func Load() (*Config, error) {
 		redisAddr = "localhost:6379" // Default Redis address
 	}
 
-	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisPassword := strings.Trim(os.Getenv("REDIS_PASSWORD"), "'")
+	fmt.Println("redisPassword: ", redisPassword)
 
 	redisDBStr := os.Getenv("REDIS_DB")
 	redisDB := 0 // Default Redis DB

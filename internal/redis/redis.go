@@ -2,8 +2,10 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 	"wowarmory/internal/config"
 
@@ -36,10 +38,17 @@ type SearchEntry struct {
 
 // NewClient creates a new Redis client
 func NewClient(cfg *config.RedisConfig) (*Client, error) {
+	var tlsConfig *tls.Config
+
+	if os.Getenv("REDIS_CLOUD") == "true" {
+		tlsConfig = &tls.Config{MinVersion: tls.VersionTLS12}
+	}
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Password: cfg.Password,
 		DB:       cfg.DB,
+		// TLS for cloud redis
+		TLSConfig: tlsConfig,
 	})
 
 	// Test the connection
