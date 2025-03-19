@@ -155,7 +155,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 		if err := json.Unmarshal([]byte(val), &entry); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal search entry: %w", err)
 		}
-		// Expire search entries after a specified time, delete them
+		// Delete keys from sorted set and completely if expired
 		if time.Since(entry.Timestamp) > time.Hour*SearchExpirationHours {
 			if err := c.rdb.Del(ctx, keys[i]).Err(); c.rdb.ZRem(ctx, RecentSearchesKey, keys[i]).Err() != nil {
 				return nil, fmt.Errorf("failed to delete expired search entry: %w", err)
