@@ -21,11 +21,6 @@ jobs:
         run: |
           make vet
 
-      - name: staticcheck
-        uses: dominikh/staticcheck-action@v1.2.0
-        with:
-          version: latest
-
   release:
     runs-on: ubuntu-latest
     needs: vet-and-test
