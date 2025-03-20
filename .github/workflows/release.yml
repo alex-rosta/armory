@@ -26,11 +26,6 @@ jobs:
         with:
           version: latest
 
-      - name: Build
-        run: |
-          go build -o wowarmory cmd/server/main.go
-
-
   release:
     runs-on: ubuntu-latest
     needs: vet-and-test
