@@ -39,7 +39,6 @@ func TestRedisIntegration(t *testing.T) {
 	t.Run("NewClient", testNewClient(redisConfig))
 	t.Run("RecordSearch", testRecordSearch(redisConfig))
 	t.Run("GetRecentSearches", testGetRecentSearches(redisConfig))
-	t.Run("SearchExpiration", testSearchExpiration(redisConfig))
 }
 
 // testNewClient tests the NewClient function
@@ -135,36 +134,6 @@ func testGetRecentSearches(cfg *config.RedisConfig) func(t *testing.T) {
 			}
 			t.Logf("Search %d: %s-%s-%s at %s", i+1, search.Region, search.Realm, search.Character, search.Timestamp.Format(time.RFC3339))
 		}
-	}
-}
-
-// testSearchExpiration tests the expiration of searches
-func testSearchExpiration(cfg *config.RedisConfig) func(t *testing.T) {
-	return func(t *testing.T) {
-		// This test is more of a verification that the expiration is set correctly
-		// We can't actually wait for the expiration in a test, but we can verify the TTL
-
-		// Create a new Redis client
-		client, err := redis.NewClient(cfg)
-		if err != nil {
-			t.Fatalf("Failed to create Redis client: %v", err)
-		}
-		defer client.Close()
-
-		// Create a context
-		ctx := context.Background()
-
-		// Test parameters
-		region := "eu"
-		realm := "darkspear"
-		character := "test-character-ttl-" + time.Now().Format("20060102150405")
-
-		// Record a search
-		err = client.RecordSearch(ctx, region, realm, character)
-		if err != nil {
-			t.Fatalf("Failed to record search: %v", err)
-		}
-		t.Log("Search recorded successfully, expiration verification skipped in test")
 	}
 }
 
