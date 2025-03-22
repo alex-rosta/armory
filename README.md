@@ -64,6 +64,18 @@ docker-compose up -d --build
 
 The application will be available at http://localhost:3000
 
+## Testing
+
+### Integration Tests
+
+The project includes integration tests for the Blizzard API and Redis components. These tests verify that the application correctly integrates with external services.
+
+To run the integration tests use:
+
+```bash
+make test
+```
+
 ## Project Structure
 
 ```
@@ -83,6 +95,8 @@ wowarmory/
 │   ├── redis/               # Redis client and logic
 │   ├── router/              # HTTP router
 │   └── templates/           # HTML templates
+├── tests/                   # Test files
+│   ├── integration/         # Integration tests
 ├── .dockerignore            # Docker ignore file
 ├── .env                     # Environment variables (not in version control)
 ├── .env.example             # Example environment variables
@@ -93,4 +107,3 @@ wowarmory/
 ├── Makefile                 # Makefile for common tasks
 └── README.md                # Project documentation
 ```
-

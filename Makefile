@@ -19,7 +19,7 @@ clean:
 
 # Run tests
 test:
-	go test ./...
+	go test -v ./...
 
 # Format code
 fmt:
