@@ -69,9 +69,6 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// We'll record the search in Redis only if the character lookup is successful
-	// So we'll move this code after the character lookup
-
 	// Get access token
 	accessToken, err := h.blizzardClient.GetAccessToken()
 	if err != nil {
@@ -82,7 +79,11 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	// Get character profile
 	profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
 	if err != nil {
-		http.Error(w, "Error getting character profile: "+err.Error(), http.StatusInternalServerError)
+		h.templates.ExecuteTemplate(w, "error.html", map[string]string{
+			"url": fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character),
+		})
+		fmt.Printf("Error getting character profile: %v\n", err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
