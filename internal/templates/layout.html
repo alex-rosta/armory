@@ -1,102 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WoW Armory</title>
     <!-- CSS -->
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
     <!-- Favicon -->
-    <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon" />
     <!-- JavaScript -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            background-image: url('/assets/media/wow-bg.png');
-            background-size: cover;
-            backdrop-filter: blur(10px);
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 2rem 0;
-        }
-        .form-container {
-            background-color: rgba(33, 37, 41, 0.9);
-            border-radius: 0.5rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            width: 100%;
-            max-width: 800px;
-        }
-        .character-container {
-            background-color: rgba(33, 37, 41, 0.9);
-            border-radius: 0.5rem;
-            padding: 2rem;
-            width: 100%;
-            max-width: 800px;
-        }
-        .footer {
-            text-align: center;
-            padding: 1rem;
-            background-color: rgba(33, 37, 41, 0.7);
-            margin-top: auto;
-        }
-        .btn-primary {
-            background-color: #7b68ee;
-            border-color: #7b68ee;
-        }
-        .btn-primary:hover {
-            background-color: #6a5acd;
-            border-color: #6a5acd;
-        }
-        .nav-tabs .nav-link {
-            color: #fff;
-        }
-        .nav-tabs .nav-link.active {
-            background-color: rgba(123, 104, 238, 0.2);
-            color: #fff;
-            border-color: #7b68ee;
-        }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background-image: url("/assets/media/wow-bg.png");
+        background-size: cover;
+        backdrop-filter: blur(10px);
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        color: white;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .main-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 2rem 0;
+      }
+      .form-container {
+        background-color: rgba(33, 37, 41, 0.9);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        width: 100%;
+        max-width: 800px;
+      }
+      .character-container {
+        background-color: rgba(33, 37, 41, 0.9);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        width: 100%;
+        max-width: 800px;
+      }
+      .footer {
+        text-align: center;
+        padding: 1rem;
+        background-color: rgba(33, 37, 41, 0.7);
+        margin-top: auto;
+      }
+      .btn-primary {
+        background-color: #7b68ee;
+        border-color: #7b68ee;
+      }
+      .btn-primary:hover {
+        background-color: #6a5acd;
+        border-color: #6a5acd;
+      }
+      .nav-tabs .nav-link {
+        color: #fff;
+      }
+      .nav-tabs .nav-link.active {
+        background-color: rgba(123, 104, 238, 0.2);
+        color: #fff;
+        border-color: #7b68ee;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="main-container">
-        <div class="form-container">
-            <h1 class="text-center mb-4">WoW Armory</h1>
-            
-            <ul class="nav nav-tabs mb-4">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/">Character Lookup</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/recent-searches">Recent Searches</a>
-                </li>
-            </ul>
-            
-            {{ template "form" . }}
-        </div>
+      <div class="form-container">
+        <h1 class="text-center mb-4">WoW Armory</h1>
+
+        <ul class="nav nav-tabs mb-4">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Character Lookup</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/recent-searches">Recent Searches</a>
+          </li>
+        </ul>
+
+        {{ template "form" . }}
+      </div>
     </div>
-    
+
     <footer class="footer">
-        <div class="container">
-            <p class="mb-0">WoW Armory - A World of Warcraft Character Lookup Tool</p>
-            <i class="bi bi-github"></i> <a href="https://github.com/alex-rosta/armory" target="_blank">GitHub</a>
-        </div>
+      <div class="container">
+        <p class="mb-0">
+          WoW Armory - A World of Warcraft Character Lookup Tool
+        </p>
+        <i class="bi bi-github"></i>
+        <a href="https://github.com/alex-rosta/armory" target="_blank"
+          >GitHub</a
+        >
+      </div>
     </footer>
-</body>
+  </body>
 </html>
