@@ -6,7 +6,10 @@ type CharacterProfile struct {
 	Name              string `json:"name"`
 	ItemLevel         int    `json:"average_item_level"`
 	AchievementPoints int    `json:"achievement_points"`
-	Faction           struct {
+	Realm             struct {
+		Name string `json:"name"`
+	} `json:"realm"`
+	Faction struct {
 		Name string `json:"name"`
 	} `json:"faction"`
 	Guild struct {
@@ -53,7 +56,11 @@ type CharacterData struct {
 	Level             int
 	ItemLevel         int
 	AchievementPoints int
-	Faction           struct {
+	Realm             struct {
+		Name string
+	}
+	Region  string
+	Faction struct {
 		Name string
 	}
 	ActiveSpec struct {
@@ -78,8 +85,10 @@ type CharacterData struct {
 }
 
 // NewCharacterData creates a new CharacterData from a map of profile data
-func NewCharacterData(profileData map[string]interface{}) (CharacterData, error) {
-	data := CharacterData{}
+func NewCharacterData(profileData map[string]interface{}, region string) (CharacterData, error) {
+	data := CharacterData{
+		Region: region,
+	}
 
 	// Extract basic character information
 	if name, ok := profileData["name"].(string); ok {
@@ -99,6 +108,13 @@ func NewCharacterData(profileData map[string]interface{}) (CharacterData, error)
 	if activeSpec, ok := profileData["active_spec"].(map[string]interface{}); ok {
 		if name, ok := activeSpec["name"].(string); ok {
 			data.ActiveSpec.Name = name
+		}
+	}
+
+	// Extract realm
+	if realm, ok := profileData["realm"].(map[string]interface{}); ok {
+		if name, ok := realm["name"].(string); ok {
+			data.Realm.Name = name
 		}
 	}
 

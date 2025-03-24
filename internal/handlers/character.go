@@ -88,7 +88,7 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	}
 
 	// Create character data from profile data
-	data, err := models.NewCharacterData(profileData)
+	data, err := models.NewCharacterData(profileData, region)
 	if err != nil {
 		http.Error(w, "Error processing character data: "+err.Error(), http.StatusInternalServerError)
 		return

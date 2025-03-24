@@ -8,26 +8,14 @@
             <div class="d-flex align-items-center {{ .Class.Name }} rounded-lg">
               <div class="faction-icon me-3">
                 {{ if eq .Faction.Name "Horde" }}
-                <img
-                  src="/assets/media/horde.png"
-                  alt="Horde"
-                  class="img-fluid"
-                  style="max-width: 80px"
-                />
+                <img src="/assets/media/horde.png" alt="Horde" class="img-fluid" style="max-width: 80px" />
                 {{ else if eq .Faction.Name "Alliance" }}
-                <img
-                  src="/assets/media/alliance.png"
-                  alt="Alliance"
-                  class="img-fluid"
-                  style="max-width: 70px"
-                />
+                <img src="/assets/media/alliance.png" alt="Alliance" class="img-fluid" style="max-width: 70px" />
                 {{ end }}
               </div>
               <div>
                 <h2 class="mb-0">{{ .Name }}</h2>
-                <p class="mb-0">
-                  Level {{ .Level }} {{ .ActiveSpec.Name }} {{ .Class.Name }}
-                </p>
+                <p class="mb-0">Level {{ .Level }} {{ .ActiveSpec.Name }} {{ .Class.Name }}</p>
                 {{ if .Guild.Name }}
                 <p class="mb-0 text-info">&lt;{{ .Guild.Name }}&gt;</p>
                 {{ end }}
@@ -41,51 +29,46 @@
                 <div class="character-stats mb-4">
                   <h4 class="border-bottom pb-2">Character Stats</h4>
                   <div class="d-flex justify-content-between mb-2">
-                    <span
-                      ><i class="bi bi-shield-shaded text-info"></i> Item
-                      Level:</span
-                    >
+                    <span><i class="bi bi-shield-shaded text-info"></i> Item Level:</span>
                     <span class="fw-bold">{{ .ItemLevel }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
-                    <span
-                      ><i class="bi bi-award text-warning"></i>
-                      Achievements:</span
-                    >
+                    <span><i class="bi bi-award text-warning"></i> Achievements:</span>
                     <span class="fw-bold">{{ .AchievementPoints }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
-                    <span
-                      ><i class="bi bi-heart-half text-danger"></i>
-                      Health:</span
-                    >
+                    <span><i class="bi bi-heart-half text-danger"></i> Health:</span>
                     <span class="fw-bold">{{ .Health }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
-                    <span
-                      ><i class="bi bi-lightning text-warning"></i> {{
-                      .PowerType.Name }}:</span
-                    >
+                    <span><i class="bi bi-lightning text-warning"></i> {{ .PowerType.Name }}:</span>
                     <span class="fw-bold">{{ .Power }}</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
-                    <span
-                      ><i class="bi bi-shield-plus text-primary"></i>
-                      Stamina:</span
-                    >
+                    <span><i class="bi bi-shield-plus text-primary"></i> Stamina:</span>
                     <span class="fw-bold">{{ .Stamina.Effective }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>
+                      <a href="https://www.warcraftlogs.com/character/{{ .Region }}/{{ .Realm.Name }}/{{ .Name }}" target="_blank">
+                        Warcraft Logs
+                      </a>
+                    </span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>
+                      <a href="https://https://raider.io/characters/{{ .Region }}/{{ .Realm.Name }}/{{ .Name }}" target="_blank">
+                        Raider.io
+                      </a>
+                    </span>
                   </div>
                 </div>
               </div>
-
+              
               <div class="col-md-8">
                 {{ if .MainRawImage }}
                 <div class="character-image text-center">
-                  <img
-                    src="{{ .MainRawImage }}"
-                    class="img-fluid rounded transition-transform duration-300 ease-in-out scale-125 hover:scale-150"
-                    alt="{{ .Name }} character image"
-                  />
+                  <img src="{{ .MainRawImage }}" class="img-fluid rounded transition-transform duration-300 ease-in-out scale-125 hover:scale-150" alt="{{ .Name }} character image" />
                 </div>
                 {{ end }}
               </div>
@@ -99,5 +82,5 @@
       </div>
     </div>
   </div>
-  {{ end }}
 </div>
+{{ end }}
