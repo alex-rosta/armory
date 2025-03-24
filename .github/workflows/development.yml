@@ -1,7 +1,7 @@
 name: Test and vet code
 
 on:
-  pull-request:
+  push:
     branches:
       - feature-*
 
