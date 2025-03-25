@@ -1,14 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Error</title>
-  </head>
-  <body>
-    <h2>Character Not Found</h2>
-    <p>Realms consisting of two names should be joined with -.</p>
-    <p>For example DefiasBrotherhood would be Defias-Brotherhood.</p>
-    <a href="{{ .url }}">Check if it exists on Blizzard Armory</a>
-  </body>
-</html>
+{{ define "error" }}
+<div class="container">
+  <div class="alert alert-danger">
+    <h3><i class="bi bi-exclamation-triangle"></i> Not Found</h3>
+    <p>The requested character or guild could not be found.</p>
+    <p>Realms consisting of two names should be joined with a hyphen.</p>
+    <p>For example "DefiasBrotherhood" would be "Defias-Brotherhood".</p>
+    <div class="mt-3">
+      <a href="{{ .url }}" class="btn btn-outline-light" target="_blank">
+        <i class="bi bi-link-45deg"></i> Check if it exists on Blizzard Armory
+      </a>
+    </div>
+  </div>
+  <div class="mt-4 text-center">
+    <a href="/" class="btn btn-primary">
+      <i class="bi bi-search"></i> Try Another Search
+    </a>
+  </div>
+</div>
+{{ end }}

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WoW Armory - Guild Lookup</title>
+    <title>WoW Armory{{ if .PageTitle }} - {{ .PageTitle }}{{ end }}</title>
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/styles.css" />
     <link
@@ -44,20 +44,15 @@
         align-items: center;
         padding: 2rem 0;
       }
-      .form-container {
+      .form-container, .character-container, .guild-container, .recent-searches-container {
         background-color: rgba(33, 37, 41, 0.9);
         border-radius: 0.5rem;
         padding: 2rem;
-        margin-bottom: 2rem;
         width: 100%;
         max-width: 800px;
       }
-      .guild-container {
-        background-color: rgba(33, 37, 41, 0.9);
-        border-radius: 0.5rem;
-        padding: 2rem;
-        width: 100%;
-        max-width: 800px;
+      .form-container {
+        margin-bottom: 2rem;
       }
       .footer {
         text-align: center;
@@ -85,23 +80,36 @@
   </head>
   <body>
     <div class="main-container">
-      <div class="form-container">
+      <div class="{{ if .ContainerClass }}{{ .ContainerClass }}{{ else }}form-container{{ end }}">
         <h1 class="text-center mb-4">WoW Armory</h1>
 
         <ul class="nav nav-tabs mb-4">
           <li class="nav-item">
-            <a class="nav-link" href="/">Character Lookup</a>
+            <a class="nav-link {{ if eq .ActiveTab "character" }}active{{ end }}" href="/">Character Lookup</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/guild-lookup">Guild Lookup</a>
+            <a class="nav-link {{ if eq .ActiveTab "guild" }}active{{ end }}" href="/guild-lookup">Guild Lookup</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/recent-searches">Recent Searches</a>
+            <a class="nav-link {{ if eq .ActiveTab "recent" }}active{{ end }}" href="/recent-searches">Recent Searches</a>
           </li>
         </ul>
 
-        {{ template "guild_form" . }}
+        {{ if eq .ContentTemplate "form" }}
+          {{ template "form" . }}
+        {{ else if eq .ContentTemplate "guild_form" }}
+          {{ template "guild_form" . }}
+        {{ else if eq .ContentTemplate "character" }}
+          {{ template "character" . }}
+        {{ else if eq .ContentTemplate "guild" }}
+          {{ template "guild" . }}
+        {{ else if eq .ContentTemplate "recent_searches_container" }}
+          {{ template "recent_searches_container" . }}
+        {{ else if eq .ContentTemplate "error" }}
+          {{ template "error" . }}
+        {{ end }}
       </div>
+
     </div>
 
     <footer class="footer">

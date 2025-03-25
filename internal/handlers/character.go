@@ -49,10 +49,93 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 	// Set content type
 	w.Header().Set("Content-Type", "text/html")
 
-	// Execute template
-	if err := h.templates.ExecuteTemplate(w, "layout.html", nil); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+	// Check if character parameters are provided in the URL
+	region := strings.ToLower(r.URL.Query().Get("region"))
+	realm := strings.ToLower(r.URL.Query().Get("realm"))
+	character := strings.ToLower(r.URL.Query().Get("character"))
+
+	// If all parameters are provided, display character data
+	if region != "" && realm != "" && character != "" {
+		// Get access token
+		accessToken, err := h.blizzardClient.GetAccessToken()
+		if err != nil {
+			http.Error(w, "Error getting access token: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Get character profile
+		profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
+		if err != nil {
+			// Execute error template with master layout
+			layoutData := map[string]interface{}{
+				"PageTitle":       "Error",
+				"ActiveTab":       "character",
+				"ContentTemplate": "error",
+				"url":             fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character),
+			}
+
+			if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+				http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+			}
+			fmt.Printf("Error getting character profile: %v\n", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		// Create character data from profile data
+		characterData, err := models.NewCharacterData(profileData, region)
+		if err != nil {
+			http.Error(w, "Error processing character data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Record the successful search in Redis
+		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+		defer cancel()
+
+		if err := h.redisClient.RecordSearch(ctx, region, realm, character); err != nil {
+			// Log the error but continue with the request
+			fmt.Printf("Error recording search: %v\n", err)
+		}
+
+		// Combine character data with layout data
+		layoutData := map[string]interface{}{
+			"PageTitle":         characterData.Name,
+			"ActiveTab":         "character",
+			"ContentTemplate":   "character",
+			"ContainerClass":    "character-container",
+			"Name":              characterData.Name,
+			"Level":             characterData.Level,
+			"Class":             characterData.Class,
+			"ActiveSpec":        characterData.ActiveSpec,
+			"Faction":           characterData.Faction,
+			"Guild":             characterData.Guild,
+			"ItemLevel":         characterData.ItemLevel,
+			"AchievementPoints": characterData.AchievementPoints,
+			"Health":            characterData.Health,
+			"Power":             characterData.Power,
+			"PowerType":         characterData.PowerType,
+			"Stamina":           characterData.Stamina,
+			"Region":            characterData.Region,
+			"Realm":             characterData.Realm,
+			"MainRawImage":      characterData.MainRawImage,
+		}
+
+		// Execute character template with master layout
+		if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+			http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+		}
 		return
+	}
+
+	// If no parameters, show the form
+	layoutData := map[string]interface{}{
+		"ActiveTab":       "character",
+		"ContentTemplate": "form",
+	}
+
+	if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 	}
 }
 

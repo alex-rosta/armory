@@ -62,8 +62,16 @@ func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *
 	// Set content type
 	w.Header().Set("Content-Type", "text/html")
 
-	// Execute the layout template with the recent searches template
-	if err := h.templates.ExecuteTemplate(w, "layout_recent_searches.html", nil); err != nil {
+	// Create data for the master layout
+	layoutData := map[string]interface{}{
+		"PageTitle":       "Recent Searches",
+		"ActiveTab":       "recent",
+		"ContentTemplate": "recent_searches_container",
+		"ContainerClass":  "recent-searches-container",
+	}
+
+	// Execute the master layout template
+	if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
