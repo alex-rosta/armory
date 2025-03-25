@@ -132,7 +132,7 @@ func testGetRecentSearches(cfg *config.RedisConfig) func(t *testing.T) {
 				t.Log("...")
 				break
 			}
-			t.Logf("Search %d: %s-%s-%s at %s", i+1, search.Region, search.Realm, search.Character, search.Timestamp.Format(time.RFC3339))
+			t.Logf("Search %d: %s-%s-%s at %s", i+1, search.Region, search.Realm, search.Character, search.Timestamp)
 		}
 	}
 }

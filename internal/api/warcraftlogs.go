@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"wowarmory/internal/interfaces"
 
 	"github.com/machinebox/graphql"
 )
@@ -11,6 +12,14 @@ import (
 type WarcraftlogsClient struct {
 	client      *graphql.Client
 	accessToken string
+}
+
+// Ensure WarcraftlogsClient implements WarcraftLogsAPI interface
+var _ interfaces.WarcraftLogsAPI = (*WarcraftlogsClient)(nil)
+
+// GetClientName returns the name of the client
+func (c *WarcraftlogsClient) GetClientName() string {
+	return "WarcraftLogsAPI"
 }
 
 // NewWarcraftlogsClient creates a new Warcraftlogs API client
@@ -78,7 +87,7 @@ type GuildResponse struct {
 }
 
 // GetGuild gets information about a guild from the Warcraftlogs API
-func (c *WarcraftlogsClient) GetGuild(ctx context.Context, name, serverSlug, serverRegion string) (*GuildResponse, error) {
+func (c *WarcraftlogsClient) GetGuild(ctx context.Context, name, serverSlug, serverRegion string) (interface{}, error) {
 	// Create a new request
 	req := graphql.NewRequest(`
 		query GetGuild(

@@ -3,47 +3,43 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"time"
-	"wowarmory/internal/api"
-	"wowarmory/internal/config"
+	"wowarmory/internal/interfaces"
 	"wowarmory/internal/models"
-	redisClient "wowarmory/internal/redis"
 )
 
 // GuildHandler handles guild-related HTTP requests
 type GuildHandler struct {
-	config             *config.Config
-	warcraftlogsClient *api.WarcraftlogsClient
-	redisClient        *redisClient.Client
-	templates          *template.Template
+	*BaseHandler
+	warcraftlogsClient interfaces.WarcraftLogsAPI
+}
+
+// Ensure GuildHandler implements Handler interface
+var _ interfaces.Handler = (*GuildHandler)(nil)
+
+// GetName returns the name of the handler
+func (h *GuildHandler) GetName() string {
+	return "GuildHandler"
 }
 
 // NewGuildHandler creates a new GuildHandler
-func NewGuildHandler(cfg *config.Config, warcraftlogsClient *api.WarcraftlogsClient, redisClient *redisClient.Client) (*GuildHandler, error) {
-	// Parse templates
-	templatesPath := filepath.Join(cfg.TemplatesDir, "*.html")
-	tmpl, err := template.ParseGlob(templatesPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse templates: %w", err)
-	}
-
+func NewGuildHandler(base *BaseHandler, warcraftlogsClient interfaces.WarcraftLogsAPI) *GuildHandler {
 	return &GuildHandler{
-		config:             cfg,
+		BaseHandler:        base,
 		warcraftlogsClient: warcraftlogsClient,
-		redisClient:        redisClient,
-		templates:          tmpl,
-	}, nil
+	}
+}
+
+// RegisterRoutes registers the handler's routes with the router
+func (h *GuildHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
+	router.HandleFunc("/guild-lookup", h.LookupGuild)
+	router.HandleFunc("/guild", h.GetGuildTemplate)
 }
 
 // LookupGuild handles the guild lookup request
 func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
-
 	// Check if guild parameters are provided in the URL
 	region := strings.ToLower(r.URL.Query().Get("region"))
 	realm := strings.ToLower(r.URL.Query().Get("realm"))
@@ -59,18 +55,11 @@ func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
 		guildResponse, err := h.warcraftlogsClient.GetGuild(ctx, guild, realm, region)
 		if err != nil {
 			// Execute error template with master layout
-			layoutData := map[string]interface{}{
-				"PageTitle":       "Error",
-				"ActiveTab":       "guild",
-				"ContentTemplate": "error",
-				"url":             fmt.Sprintf("https://www.warcraftlogs.com/guild/%s/%s/%s", region, realm, guild),
-			}
-
-			if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+			url := fmt.Sprintf("https://www.warcraftlogs.com/guild/%s/%s/%s", region, realm, guild)
+			if err := h.RenderError(w, "guild", url); err != nil {
 				http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 			}
 			fmt.Printf("Error getting guild data: %v\n", err)
-			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
@@ -82,19 +71,15 @@ func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Record the successful search in Redis
-		ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
-		defer cancel()
-
-		if err := h.redisClient.RecordSearch(ctx, region, realm, guild); err != nil {
-			// Log the error but continue with the request
-			fmt.Printf("Error recording search: %v\n", err)
+		if err := h.RecordSearch(r, region, realm, guild); err != nil {
+			// Error is already logged in RecordSearch
+			// Continue with the request
 		}
 
 		// Combine guild data with layout data
 		layoutData := map[string]interface{}{
 			"PageTitle":       guildData.Name,
 			"ActiveTab":       "guild",
-			"ContentTemplate": "guild",
 			"ContainerClass":  "guild-container",
 			"Name":            guildData.Name,
 			"Realm":           guildData.Realm,
@@ -110,7 +95,7 @@ func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Execute guild template with master layout
-		if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+		if err := h.RenderWithLayout(w, "guild", layoutData); err != nil {
 			http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 		}
 		return
@@ -118,12 +103,11 @@ func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
 
 	// If no parameters, show the form
 	layoutData := map[string]interface{}{
-		"PageTitle":       "Guild Lookup",
-		"ActiveTab":       "guild",
-		"ContentTemplate": "guild_form",
+		"PageTitle": "Guild Lookup",
+		"ActiveTab": "guild",
 	}
 
-	if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+	if err := h.RenderWithLayout(w, "guild_form", layoutData); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -148,9 +132,8 @@ func (h *GuildHandler) GetGuildTemplate(w http.ResponseWriter, r *http.Request) 
 	// Get guild data from Warcraftlogs API
 	guildResponse, err := h.warcraftlogsClient.GetGuild(ctx, guild, realm, region)
 	if err != nil {
-		h.templates.ExecuteTemplate(w, "error.html", map[string]string{
-			"url": fmt.Sprintf("https://www.warcraftlogs.com/guild/%s/%s/%s", region, realm, guild),
-		})
+		url := fmt.Sprintf("https://www.warcraftlogs.com/guild/%s/%s/%s", region, realm, guild)
+		h.RenderTemplate(w, "error.html", map[string]string{"url": url})
 		fmt.Printf("Error getting guild data: %v\n", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -164,19 +147,13 @@ func (h *GuildHandler) GetGuildTemplate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Record the successful search in Redis
-	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	if err := h.redisClient.RecordSearch(ctx, region, realm, guild); err != nil {
-		// Log the error but continue with the request
-		fmt.Printf("Error recording search: %v\n", err)
+	if err := h.RecordSearch(r, region, realm, guild); err != nil {
+		// Error is already logged in RecordSearch
+		// Continue with the request
 	}
 
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
-
 	// Execute only the guild template
-	if err := h.templates.ExecuteTemplate(w, "guild", data); err != nil {
+	if err := h.RenderTemplate(w, "guild", data); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

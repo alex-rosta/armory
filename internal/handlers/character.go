@@ -1,54 +1,43 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
-	"html/template"
 	"net/http"
-	"path/filepath"
 	"strings"
-	"time"
-	"wowarmory/internal/api"
-	"wowarmory/internal/config"
+	"wowarmory/internal/interfaces"
 	"wowarmory/internal/models"
-	redisClient "wowarmory/internal/redis"
 )
 
 // CharacterHandler handles character-related HTTP requests
 type CharacterHandler struct {
-	config         *config.Config
-	blizzardClient *api.BlizzardClient
-	redisClient    *redisClient.Client
-	templates      *template.Template
+	*BaseHandler
+	blizzardClient interfaces.BlizzardAPI
 }
 
-// GetTemplates returns the templates used by the handler
-func (h *CharacterHandler) GetTemplates() *template.Template {
-	return h.templates
+// Ensure CharacterHandler implements Handler interface
+var _ interfaces.Handler = (*CharacterHandler)(nil)
+
+// GetName returns the name of the handler
+func (h *CharacterHandler) GetName() string {
+	return "CharacterHandler"
 }
 
 // NewCharacterHandler creates a new CharacterHandler
-func NewCharacterHandler(cfg *config.Config, blizzardClient *api.BlizzardClient, redisClient *redisClient.Client) (*CharacterHandler, error) {
-	// Parse templates
-	templatesPath := filepath.Join(cfg.TemplatesDir, "*.html")
-	tmpl, err := template.ParseGlob(templatesPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse templates: %w", err)
-	}
-
+func NewCharacterHandler(base *BaseHandler, blizzardClient interfaces.BlizzardAPI) *CharacterHandler {
 	return &CharacterHandler{
-		config:         cfg,
+		BaseHandler:    base,
 		blizzardClient: blizzardClient,
-		redisClient:    redisClient,
-		templates:      tmpl,
-	}, nil
+	}
+}
+
+// RegisterRoutes registers the handler's routes with the router
+func (h *CharacterHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
+	router.HandleFunc("/", h.LookupCharacter)
+	router.HandleFunc("/character", h.GetCharacterTemplate)
 }
 
 // LookupCharacter handles the character lookup request
 func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Request) {
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
-
 	// Check if character parameters are provided in the URL
 	region := strings.ToLower(r.URL.Query().Get("region"))
 	realm := strings.ToLower(r.URL.Query().Get("realm"))
@@ -67,18 +56,11 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 		profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
 		if err != nil {
 			// Execute error template with master layout
-			layoutData := map[string]interface{}{
-				"PageTitle":       "Error",
-				"ActiveTab":       "character",
-				"ContentTemplate": "error",
-				"url":             fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character),
-			}
-
-			if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+			url := fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character)
+			if err := h.RenderError(w, "character", url); err != nil {
 				http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 			}
 			fmt.Printf("Error getting character profile: %v\n", err)
-			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
@@ -90,19 +72,15 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 		}
 
 		// Record the successful search in Redis
-		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-		defer cancel()
-
-		if err := h.redisClient.RecordSearch(ctx, region, realm, character); err != nil {
-			// Log the error but continue with the request
-			fmt.Printf("Error recording search: %v\n", err)
+		if err := h.RecordSearch(r, region, realm, character); err != nil {
+			// Error is already logged in RecordSearch
+			// Continue with the request
 		}
 
 		// Combine character data with layout data
 		layoutData := map[string]interface{}{
 			"PageTitle":         characterData.Name,
 			"ActiveTab":         "character",
-			"ContentTemplate":   "character",
 			"ContainerClass":    "character-container",
 			"Name":              characterData.Name,
 			"Level":             characterData.Level,
@@ -122,7 +100,7 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 		}
 
 		// Execute character template with master layout
-		if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+		if err := h.RenderWithLayout(w, "character", layoutData); err != nil {
 			http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 		}
 		return
@@ -130,11 +108,10 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 
 	// If no parameters, show the form
 	layoutData := map[string]interface{}{
-		"ActiveTab":       "character",
-		"ContentTemplate": "form",
+		"ActiveTab": "character",
 	}
 
-	if err := h.templates.ExecuteTemplate(w, "master_layout.html", layoutData); err != nil {
+	if err := h.RenderWithLayout(w, "form", layoutData); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -162,9 +139,8 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	// Get character profile
 	profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
 	if err != nil {
-		h.templates.ExecuteTemplate(w, "error.html", map[string]string{
-			"url": fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character),
-		})
+		url := fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character)
+		h.RenderTemplate(w, "error.html", map[string]string{"url": url})
 		fmt.Printf("Error getting character profile: %v\n", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -178,19 +154,13 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	}
 
 	// Record the successful search in Redis
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	if err := h.redisClient.RecordSearch(ctx, region, realm, character); err != nil {
-		// Log the error but continue with the request
-		fmt.Printf("Error recording search: %v\n", err)
+	if err := h.RecordSearch(r, region, realm, character); err != nil {
+		// Error is already logged in RecordSearch
+		// Continue with the request
 	}
 
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
-
 	// Execute only the character template
-	if err := h.templates.ExecuteTemplate(w, "character", data); err != nil {
+	if err := h.RenderTemplate(w, "character", data); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
