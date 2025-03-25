@@ -57,11 +57,11 @@ func (h *BaseHandler) RenderError(w http.ResponseWriter, activeTab, url string) 
 }
 
 // RecordSearch records a search in Redis
-func (h *BaseHandler) RecordSearch(r *http.Request, region, realm, name string) error {
+func (h *BaseHandler) RecordSearch(r *http.Request, searchType string, region, realm, name string) error {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	if err := h.redisClient.RecordSearch(ctx, region, realm, name); err != nil {
+	if err := h.redisClient.RecordSearch(ctx, searchType, region, realm, name); err != nil {
 		// Log the error but don't fail the request
 		fmt.Printf("Error recording search: %v\n", err)
 	}

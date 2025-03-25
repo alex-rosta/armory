@@ -71,7 +71,7 @@ func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Record the successful search in Redis
-		if err := h.RecordSearch(r, region, realm, guild); err != nil {
+		if err := h.RecordSearch(r, string(interfaces.GuildSearchType), region, realm, guild); err != nil {
 			// Error is already logged in RecordSearch
 			// Continue with the request
 		}
@@ -147,7 +147,7 @@ func (h *GuildHandler) GetGuildTemplate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Record the successful search in Redis
-	if err := h.RecordSearch(r, region, realm, guild); err != nil {
+	if err := h.RecordSearch(r, string(interfaces.GuildSearchType), region, realm, guild); err != nil {
 		// Error is already logged in RecordSearch
 		// Continue with the request
 	}

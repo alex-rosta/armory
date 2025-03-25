@@ -32,9 +32,10 @@ type Client struct {
 // Ensure Client implements SearchStore interface
 var _ interfaces.SearchStore = (*Client)(nil)
 
-// SearchEntry represents a character search entry
+// SearchEntry represents a search entry
 type SearchEntry struct {
-	Character string    `json:"character"`
+	Type      string    `json:"type"`
+	Name      string    `json:"name"`
 	Realm     string    `json:"realm"`
 	Region    string    `json:"region"`
 	Timestamp time.Time `json:"timestamp"`
@@ -69,11 +70,12 @@ func (c *Client) Close() error {
 	return c.rdb.Close()
 }
 
-// RecordSearch records a character search in Redis
-func (c *Client) RecordSearch(ctx context.Context, region, realm, character string) error {
+// RecordSearch records a search in Redis
+func (c *Client) RecordSearch(ctx context.Context, searchType, region, realm, name string) error {
 	// Create a search entry
 	entry := SearchEntry{
-		Character: character,
+		Type:      searchType,
+		Name:      name,
 		Realm:     realm,
 		Region:    region,
 		Timestamp: time.Now(),
@@ -87,7 +89,7 @@ func (c *Client) RecordSearch(ctx context.Context, region, realm, character stri
 
 	// Add the entry to the sorted set with the current timestamp as the score
 	score := float64(time.Now().Unix())
-	key := fmt.Sprintf("%s:%s:%s", region, realm, character)
+	key := fmt.Sprintf("%s:%s:%s:%s", searchType, region, realm, name)
 
 	// Use a pipeline to execute multiple commands atomically
 	pipe := c.rdb.Pipeline()
@@ -162,7 +164,8 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntr
 
 		// Convert internal SearchEntry to interfaces.SearchEntry
 		interfaceEntry := interfaces.SearchEntry{
-			Character: entry.Character,
+			Type:      entry.Type,
+			Name:      entry.Name,
 			Realm:     entry.Realm,
 			Region:    entry.Region,
 			Timestamp: entry.Timestamp.Format(time.RFC3339),

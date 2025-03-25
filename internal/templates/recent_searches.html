@@ -1,8 +1,8 @@
 {{ define "recent_searches" }}
 <div class="animate-fade-in">
   <div class="mb-6 text-center">
-    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Recent Character Searches</h2>
-    <p class="text-gray-600 dark:text-gray-400">Last 24 hours of character lookup activity</p>
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Recent Searches</h2>
+    <p class="text-gray-600 dark:text-gray-400">Last 24 hours of search activity</p>
   </div>
 
   {{ if .Searches }}
@@ -11,7 +11,8 @@
         <table class="table-wow">
           <thead>
             <tr>
-              <th>Character</th>
+              <th>Type</th>
+              <th>Name</th>
               <th>Realm</th>
               <th>Region</th>
               <th>Time</th>
@@ -21,8 +22,11 @@
           <tbody>
             {{ range .Searches }}
               <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150">
-                <td class="character-name py-4 font-medium text-gray-900 dark:text-gray-100">
-                  {{ .Character }}
+                <td class="py-4 text-gray-700 dark:text-gray-300 capitalize">
+                  {{ .Type }}
+                </td>
+                <td class="entity-name py-4 font-medium text-gray-900 dark:text-gray-100">
+                  {{ .Name }}
                 </td>
                 <td class="realm-name py-4 text-gray-700 dark:text-gray-300">
                   {{ .Realm }}
@@ -34,12 +38,21 @@
                   {{ .Timestamp }}
                 </td>
                 <td class="py-4">
-                  <a
-                    href="/?region={{ .Region }}&realm={{ .Realm }}&character={{ .Character }}"
-                    class="btn-wow-primary text-sm py-1"
-                  >
-                    <i class="bi bi-search mr-1"></i> View
-                  </a>
+                  {{ if eq .Type "character" }}
+                    <a
+                      href="/?region={{ .Region }}&realm={{ .Realm }}&character={{ .Name }}"
+                      class="btn-wow-primary text-sm py-1"
+                    >
+                      <i class="bi bi-search mr-1"></i> View
+                    </a>
+                  {{ else if eq .Type "guild" }}
+                    <a
+                      href="/guild-lookup?region={{ .Region }}&realm={{ .Realm }}&guild={{ .Name }}"
+                      class="btn-wow-primary text-sm py-1"
+                    >
+                      <i class="bi bi-search mr-1"></i> View
+                    </a>
+                  {{ end }}
                 </td>
               </tr>
             {{ end }}
@@ -75,7 +88,7 @@
 </div>
 
 <script>
-  // Function to format character names with first letter capitalized
+  // Function to format names with first letter capitalized
   function titleCase(str) {
     return str
       .toLowerCase()
@@ -86,12 +99,12 @@
       .join(" ");
   }
 
-  // Apply title case to character and realm names
+  // Apply title case to entity and realm names
   document.addEventListener("DOMContentLoaded", function () {
-    const characterCells = document.querySelectorAll("td:first-child");
-    const realmCells = document.querySelectorAll("td:nth-child(2)");
+    const nameCells = document.querySelectorAll("td.entity-name");
+    const realmCells = document.querySelectorAll("td.realm-name");
 
-    characterCells.forEach((cell) => {
+    nameCells.forEach((cell) => {
       cell.textContent = titleCase(cell.textContent);
     });
 

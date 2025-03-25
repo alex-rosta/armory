@@ -72,7 +72,7 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 		}
 
 		// Record the successful search in Redis
-		if err := h.RecordSearch(r, region, realm, character); err != nil {
+		if err := h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character); err != nil {
 			// Error is already logged in RecordSearch
 			// Continue with the request
 		}
@@ -154,7 +154,7 @@ func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.R
 	}
 
 	// Record the successful search in Redis
-	if err := h.RecordSearch(r, region, realm, character); err != nil {
+	if err := h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character); err != nil {
 		// Error is already logged in RecordSearch
 		// Continue with the request
 	}
