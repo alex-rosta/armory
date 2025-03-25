@@ -29,11 +29,14 @@ type GuildMember struct {
 	Type string `json:"type"`
 }
 
+// AttendanceEntry represents a single attendance entry
+type AttendanceEntry struct {
+	Players []GuildMember `json:"players"`
+}
+
 // GuildAttendance represents attendance data for a guild
 type GuildAttendance struct {
-	Data struct {
-		Players []GuildMember `json:"players"`
-	} `json:"data"`
+	Data []AttendanceEntry `json:"data"`
 }
 
 // GuildMembers represents the total number of members in a guild

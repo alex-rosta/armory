@@ -1,0 +1,1191 @@
+{
+	"data": {
+		"guildData": {
+			"guild": {
+				"name": "Divine intervention",
+				"members": {
+					"total": 244
+				},
+				"attendance": {
+					"data": [
+						{
+							"players": [
+								{
+									"name": "Gram"
+								},
+								{
+									"name": "Baconstripz"
+								},
+								{
+									"name": "Xiodine"
+								},
+								{
+									"name": "Nevih"
+								},
+								{
+									"name": "Elvorr"
+								},
+								{
+									"name": "Raxar"
+								},
+								{
+									"name": "Lionhart"
+								},
+								{
+									"name": "Guést"
+								},
+								{
+									"name": "Vernmage"
+								},
+								{
+									"name": "Cirillie"
+								},
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Foxievoidie"
+								},
+								{
+									"name": "Halfiee"
+								},
+								{
+									"name": "Snugger"
+								},
+								{
+									"name": "Tarhia"
+								},
+								{
+									"name": "Lightordawn"
+								},
+								{
+									"name": "ßrewcelee"
+								},
+								{
+									"name": "Spyrogos"
+								},
+								{
+									"name": "Astyy"
+								},
+								{
+									"name": "Wacsnie"
+								},
+								{
+									"name": "Raegor"
+								},
+								{
+									"name": "Woundburst"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Gram"
+								},
+								{
+									"name": "Baconstripz"
+								},
+								{
+									"name": "Xiodine"
+								},
+								{
+									"name": "Nevih"
+								},
+								{
+									"name": "Elvorr"
+								},
+								{
+									"name": "Raxar"
+								},
+								{
+									"name": "Guést"
+								},
+								{
+									"name": "Vernmage"
+								},
+								{
+									"name": "Cirillie"
+								},
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Foxievoidie"
+								},
+								{
+									"name": "Halfiee"
+								},
+								{
+									"name": "Snugger"
+								},
+								{
+									"name": "Tarhia"
+								},
+								{
+									"name": "Lightordawn"
+								},
+								{
+									"name": "ßrewcelee"
+								},
+								{
+									"name": "Wacsnie"
+								},
+								{
+									"name": "Raegor"
+								},
+								{
+									"name": "Woundburst"
+								},
+								{
+									"name": "Lexai"
+								},
+								{
+									"name": "Tempests"
+								},
+								{
+									"name": "Atomic"
+								},
+								{
+									"name": "Lynczi"
+								},
+								{
+									"name": "Sawada"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Gram"
+								},
+								{
+									"name": "Baconstripz"
+								},
+								{
+									"name": "Xiodine"
+								},
+								{
+									"name": "Nevih"
+								},
+								{
+									"name": "Elvorr"
+								},
+								{
+									"name": "Raxar"
+								},
+								{
+									"name": "Guést"
+								},
+								{
+									"name": "Vernmage"
+								},
+								{
+									"name": "Cirillie"
+								},
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Halfiee"
+								},
+								{
+									"name": "Snugger"
+								},
+								{
+									"name": "Tarhia"
+								},
+								{
+									"name": "Lightordawn"
+								},
+								{
+									"name": "ßrewcelee"
+								},
+								{
+									"name": "Astyy"
+								},
+								{
+									"name": "Wacsnie"
+								},
+								{
+									"name": "Raegor"
+								},
+								{
+									"name": "Woundburst"
+								},
+								{
+									"name": "Tempests"
+								},
+								{
+									"name": "Lynczi"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Gram"
+								},
+								{
+									"name": "Baconstripz"
+								},
+								{
+									"name": "Xiodine"
+								},
+								{
+									"name": "Nevih"
+								},
+								{
+									"name": "Elvorr"
+								},
+								{
+									"name": "Raxar"
+								},
+								{
+									"name": "Lionhart"
+								},
+								{
+									"name": "Guést"
+								},
+								{
+									"name": "Vernmage"
+								},
+								{
+									"name": "Cirillie"
+								},
+								{
+									"name": "Halfiee"
+								},
+								{
+									"name": "Snugger"
+								},
+								{
+									"name": "Tarhia"
+								},
+								{
+									"name": "ßrewcelee"
+								},
+								{
+									"name": "Spyrogos"
+								},
+								{
+									"name": "Astyy"
+								},
+								{
+									"name": "Wacsnie"
+								},
+								{
+									"name": "Raegor"
+								},
+								{
+									"name": "Woundburst"
+								},
+								{
+									"name": "Lexai"
+								},
+								{
+									"name": "Tempests"
+								},
+								{
+									"name": "Lynczi"
+								},
+								{
+									"name": "Fatherkoren"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Gram"
+								},
+								{
+									"name": "Baconstripz"
+								},
+								{
+									"name": "Nevih"
+								},
+								{
+									"name": "Elvorr"
+								},
+								{
+									"name": "Raxar"
+								},
+								{
+									"name": "Lionhart"
+								},
+								{
+									"name": "Guést"
+								},
+								{
+									"name": "Vernmage"
+								},
+								{
+									"name": "Cirillie"
+								},
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Foxievoidie"
+								},
+								{
+									"name": "Halfiee"
+								},
+								{
+									"name": "Snugger"
+								},
+								{
+									"name": "Tarhia"
+								},
+								{
+									"name": "Lightordawn"
+								},
+								{
+									"name": "ßrewcelee"
+								},
+								{
+									"name": "Spyrogos"
+								},
+								{
+									"name": "Wacsnie"
+								},
+								{
+									"name": "Raegor"
+								},
+								{
+									"name": "Woundburst"
+								},
+								{
+									"name": "Lexai"
+								},
+								{
+									"name": "Tempests"
+								},
+								{
+									"name": "Lynczi"
+								},
+								{
+									"name": "Aggmar"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Barnaky"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Lynczy"
+								},
+								{
+									"name": "Lexzi"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Whiteelf"
+								},
+								{
+									"name": "Tazarius"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Smokeybácon"
+								},
+								{
+									"name": "Skuggprälle"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Jopla"
+								},
+								{
+									"name": "Bacovia"
+								},
+								{
+									"name": "Duenna"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Viespeuk"
+								},
+								{
+									"name": "Douknodewae"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Halfyy"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Lynczy"
+								},
+								{
+									"name": "Lexzi"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Smokeybácon"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Bacovia"
+								},
+								{
+									"name": "Douknodewae"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Sàya"
+								},
+								{
+									"name": "Сланик"
+								},
+								{
+									"name": "Keîra"
+								},
+								{
+									"name": "Farligtvärre"
+								},
+								{
+									"name": "Røli"
+								},
+								{
+									"name": "Charmânder"
+								},
+								{
+									"name": "Oravita"
+								},
+								{
+									"name": "Boldric"
+								},
+								{
+									"name": "Zhoktard"
+								},
+								{
+									"name": "Thorbyr"
+								},
+								{
+									"name": "Дазар"
+								},
+								{
+									"name": "Zinó"
+								},
+								{
+									"name": "Tordn"
+								},
+								{
+									"name": "Pritti"
+								},
+								{
+									"name": "Blentta"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Sawada"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Douknodewae"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Zinó"
+								},
+								{
+									"name": "Nylyssae"
+								},
+								{
+									"name": "Greymalkin"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Tynarîus"
+								},
+								{
+									"name": "Ilihali"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Fryzz"
+								},
+								{
+									"name": "Ohdaesu"
+								},
+								{
+									"name": "Amonaos"
+								},
+								{
+									"name": "Narpri"
+								},
+								{
+									"name": "Mike"
+								},
+								{
+									"name": "Kasmeâ"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Holypros"
+								},
+								{
+									"name": "Pwrdbygød"
+								},
+								{
+									"name": "Mythrai"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Lexzi"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Halfyy"
+								},
+								{
+									"name": "Дазар"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Daísyduck"
+								},
+								{
+									"name": "Marvidh"
+								},
+								{
+									"name": "Rangelycan"
+								},
+								{
+									"name": "Бениелл"
+								},
+								{
+									"name": "Acrylyte"
+								},
+								{
+									"name": "Ælexiel"
+								},
+								{
+									"name": "Thimianoth"
+								},
+								{
+									"name": "Ненавиисть"
+								},
+								{
+									"name": "Hopelomage"
+								},
+								{
+									"name": "Vexié"
+								},
+								{
+									"name": "Hopelod"
+								},
+								{
+									"name": "Angelnero"
+								},
+								{
+									"name": "Xinyan"
+								},
+								{
+									"name": "Vanishedww"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Halfyy"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Daísyduck"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Elegorn"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Halfyy"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Daísyduck"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Elegorn"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Elegorn"
+								},
+								{
+									"name": "Shamé"
+								},
+								{
+									"name": "Presco"
+								},
+								{
+									"name": "Kyrilock"
+								},
+								{
+									"name": "Lanstus"
+								},
+								{
+									"name": "Neviriah"
+								},
+								{
+									"name": "Priestsais"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Bacovia"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Halfyy"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Elegorn"
+								},
+								{
+									"name": "Kyrilock"
+								},
+								{
+									"name": "Lanstus"
+								},
+								{
+									"name": "Priestsais"
+								},
+								{
+									"name": "Moulan"
+								},
+								{
+									"name": "Halfus"
+								},
+								{
+									"name": "Furyw"
+								},
+								{
+									"name": "Blah"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Nobbel"
+								},
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Bacovia"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Baconbear"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Elegorn"
+								},
+								{
+									"name": "Kyrilock"
+								},
+								{
+									"name": "Lanstus"
+								},
+								{
+									"name": "Priestsais"
+								},
+								{
+									"name": "Moulan"
+								},
+								{
+									"name": "Halfus"
+								},
+								{
+									"name": "Furyw"
+								},
+								{
+									"name": "Blah"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Asty"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Elegorn"
+								},
+								{
+									"name": "Shamé"
+								},
+								{
+									"name": "Presco"
+								},
+								{
+									"name": "Kyrilock"
+								},
+								{
+									"name": "Blah"
+								},
+								{
+									"name": "Bacon"
+								},
+								{
+									"name": "Nevalem"
+								},
+								{
+									"name": "Baelys"
+								}
+							]
+						},
+						{
+							"players": [
+								{
+									"name": "Briar"
+								},
+								{
+									"name": "Diff"
+								},
+								{
+									"name": "Lightindawn"
+								},
+								{
+									"name": "Guest"
+								},
+								{
+									"name": "Cirilli"
+								},
+								{
+									"name": "Yirkarja"
+								},
+								{
+									"name": "Bacovia"
+								},
+								{
+									"name": "Shadymadam"
+								},
+								{
+									"name": "Vernhunter"
+								},
+								{
+									"name": "Divinestorms"
+								},
+								{
+									"name": "Felstruck"
+								},
+								{
+									"name": "Kailuxis"
+								},
+								{
+									"name": "Adocat"
+								},
+								{
+									"name": "Lexion"
+								},
+								{
+									"name": "Gwydre"
+								},
+								{
+									"name": "Shamé"
+								},
+								{
+									"name": "Presco"
+								},
+								{
+									"name": "Kyrilock"
+								},
+								{
+									"name": "Lanstus"
+								},
+								{
+									"name": "Moulan"
+								},
+								{
+									"name": "Furyw"
+								},
+								{
+									"name": "Blah"
+								},
+								{
+									"name": "Bacon"
+								},
+								{
+									"name": "Nevalem"
+								},
+								{
+									"name": "Baelys"
+								},
+								{
+									"name": "Phistweaver"
+								}
+							]
+						}
+					]
+				},
+				"zoneRanking": {
+					"progress": {
+						"serverRank": {
+							"number": 25,
+							"color": "astounding"
+						},
+						"regionRank": {
+							"number": 3879,
+							"color": "uncommon"
+						},
+						"worldRank": {
+							"number": 7866,
+							"color": "uncommon"
+						}
+					}
+				}
+			}
+		}
+	}
+}

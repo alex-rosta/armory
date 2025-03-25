@@ -1,5 +1,10 @@
 package models
 
+import (
+	"fmt"
+	"wowarmory/internal/api"
+)
+
 // GuildData represents the data for a guild
 type GuildData struct {
 	Name            string
@@ -23,20 +28,59 @@ type GuildMember struct {
 
 // NewGuildData creates a new GuildData from the API response
 func NewGuildData(guildResponse interface{}, region, realm string) (*GuildData, error) {
-	// Type assertion to get the guild data from the response
-	response, ok := guildResponse.(map[string]interface{})
-	if !ok {
-		return nil, nil
+	// Type assertion for our known response structure
+	response, ok := guildResponse.(*api.GuildResponse)
+	if ok {
+		// We have a strongly typed response, use it directly
+		guildData := &GuildData{
+			Name:            response.GuildData.Guild.Name,
+			Region:          region,
+			Realm:           realm,
+			MemberCount:     response.GuildData.Guild.Members.Total,
+			ServerRank:      response.GuildData.Guild.ZoneRanking.Progress.ServerRank.Number,
+			ServerRankColor: response.GuildData.Guild.ZoneRanking.Progress.ServerRank.Color,
+			RegionRank:      response.GuildData.Guild.ZoneRanking.Progress.RegionRank.Number,
+			RegionRankColor: response.GuildData.Guild.ZoneRanking.Progress.RegionRank.Color,
+			WorldRank:       response.GuildData.Guild.ZoneRanking.Progress.WorldRank.Number,
+			WorldRankColor:  response.GuildData.Guild.ZoneRanking.Progress.WorldRank.Color,
+		}
+
+		// Process members from attendance data
+		if len(response.GuildData.Guild.Attendance.Data) > 0 {
+			// Use a map to deduplicate members
+			memberMap := make(map[string]string)
+
+			// Take the most recent raid (first entry)
+			for _, player := range response.GuildData.Guild.Attendance.Data[0].Players {
+				memberMap[player.Name] = player.Type
+			}
+
+			// Convert map to slice
+			for name, playerType := range memberMap {
+				guildData.Members = append(guildData.Members, GuildMember{
+					Name: name,
+					Type: playerType,
+				})
+			}
+		}
+
+		return guildData, nil
 	}
 
-	guildData, ok := response["guildData"].(map[string]interface{})
+	// Fallback to the generic map approach if the typed assertion failed
+	mapResponse, ok := guildResponse.(map[string]interface{})
 	if !ok {
-		return nil, nil
+		return nil, fmt.Errorf("invalid response format")
+	}
+
+	guildData, ok := mapResponse["guildData"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("guildData not found in response")
 	}
 
 	guild, ok := guildData["guild"].(map[string]interface{})
 	if !ok {
-		return nil, nil
+		return nil, fmt.Errorf("guild not found in guildData")
 	}
 
 	// Extract guild name
@@ -94,19 +138,30 @@ func NewGuildData(guildResponse interface{}, region, realm string) (*GuildData, 
 	var guildMembers []GuildMember
 	attendance, ok := guild["attendance"].(map[string]interface{})
 	if ok {
-		data, ok := attendance["data"].(map[string]interface{})
-		if ok {
-			players, ok := data["players"].([]interface{})
+		dataArray, ok := attendance["data"].([]interface{})
+		if ok && len(dataArray) > 0 {
+			// Take the most recent attendance data (first element in the array)
+			mostRecentData := dataArray[0]
+			dataMap, ok := mostRecentData.(map[string]interface{})
 			if ok {
-				for _, player := range players {
-					playerMap, ok := player.(map[string]interface{})
-					if ok {
-						name, _ := playerMap["name"].(string)
-						playerType, _ := playerMap["type"].(string)
-						guildMembers = append(guildMembers, GuildMember{
-							Name: name,
-							Type: playerType,
-						})
+				players, ok := dataMap["players"].([]interface{})
+				if ok {
+					// Create a map to deduplicate players
+					memberMap := make(map[string]bool)
+
+					for _, player := range players {
+						playerMap, ok := player.(map[string]interface{})
+						if ok {
+							name, ok := playerMap["name"].(string)
+							if ok && !memberMap[name] {
+								// Add player to the list if not already added
+								memberMap[name] = true
+								guildMembers = append(guildMembers, GuildMember{
+									Name: name,
+									Type: "Raider", // Default type since it's not in the current API response
+								})
+							}
+						}
 					}
 				}
 			}

@@ -22,17 +22,17 @@
                   
                   <div class="d-flex justify-content-between mb-2">
                     <span><i class="bi bi-trophy text-warning"></i> Server Rank:</span>
-                    <span class="fw-bold" style="color: {{ .ServerRankColor }}">{{ .ServerRank }}</span>
+                    <span class="fw-bold rank-{{ .ServerRankColor }}">{{ .ServerRank }}</span>
                   </div>
                   
                   <div class="d-flex justify-content-between mb-2">
                     <span><i class="bi bi-trophy-fill text-info"></i> Region Rank:</span>
-                    <span class="fw-bold" style="color: {{ .RegionRankColor }}">{{ .RegionRank }}</span>
+                    <span class="fw-bold rank-{{ .RegionRankColor }}">{{ .RegionRank }}</span>
                   </div>
                   
                   <div class="d-flex justify-content-between mb-2">
                     <span><i class="bi bi-globe text-success"></i> World Rank:</span>
-                    <span class="fw-bold" style="color: {{ .WorldRankColor }}">{{ .WorldRank }}</span>
+                    <span class="fw-bold rank-{{ .WorldRankColor }}">{{ .WorldRank }}</span>
                   </div>
                   
                   <div class="d-flex justify-content-between mb-2">
@@ -63,14 +63,18 @@
                         <thead>
                           <tr>
                             <th>Name</th>
-                            <th>Role</th>
+                            <th class="text-end">Role</th>
                           </tr>
                         </thead>
                         <tbody>
                           {{ range .Members }}
                             <tr>
-                              <td>{{ .Name }}</td>
-                              <td>{{ .Type }}</td>
+                              <td>
+                                <a href="/character?region={{ $.Region }}&realm={{ $.Realm }}&character={{ .Name }}" class="text-decoration-none">
+                                  {{ .Name }}
+                                </a>
+                              </td>
+                              <td class="text-end">{{ .Type }}</td>
                             </tr>
                           {{ end }}
                         </tbody>
