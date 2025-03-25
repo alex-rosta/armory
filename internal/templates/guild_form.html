@@ -1,0 +1,133 @@
+{{ define "guild_form" }}
+<div class="container">
+  <form
+    hx-get="/guild"
+    hx-target="#guild-result"
+    hx-indicator="#guild-spinner"
+    class="needs-validation"
+    novalidate
+  >
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label for="region" class="form-label">Region</label>
+        <select class="form-select" id="region" name="region" required>
+          <option value="eu">EU</option>
+          <option value="us">US</option>
+        </select>
+        <div class="invalid-feedback">Please select a region.</div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label for="realm" class="form-label">Realm</label>
+        <input
+          type="text"
+          class="form-control"
+          id="realm"
+          name="realm"
+          placeholder="e.g., tarren-mill"
+          required
+        />
+        <div class="invalid-feedback">Please enter a realm name.</div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label for="guild" class="form-label">Guild Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="guild"
+          name="guild"
+          placeholder="e.g., method"
+          required
+        />
+        <div class="invalid-feedback">Please enter a guild name.</div>
+      </div>
+    </div>
+    <div class="text-center mt-3">
+      <button type="submit" class="btn btn-primary">
+        <span
+          class="spinner-border spinner-border-sm d-none"
+          id="guild-spinner"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        Look Up Guild
+      </button>
+    </div>
+  </form>
+</div>
+
+<div id="guild-result" class="mt-4"></div>
+
+<script>
+  // Form validation
+  (function () {
+    "use strict";
+    window.addEventListener(
+      "load",
+      function () {
+        // Check URL parameters and pre-fill form fields
+        const urlParams = new URLSearchParams(window.location.search);
+        const region = urlParams.get("region");
+        const realm = urlParams.get("realm");
+        const guild = urlParams.get("guild");
+
+        if (region) {
+          document.getElementById("region").value = region.toLowerCase();
+        }
+
+        if (realm) {
+          document.getElementById("realm").value = realm.toLowerCase();
+        }
+
+        if (guild) {
+          document.getElementById("guild").value = guild.toLowerCase();
+        }
+
+        // If all parameters are present, automatically submit the form
+        if (region && realm && guild) {
+          // Slight delay to ensure the form is fully loaded
+          setTimeout(function () {
+            document.querySelector('form button[type="submit"]').click();
+          }, 100);
+        }
+        var forms = document.getElementsByClassName("needs-validation");
+        var validation = Array.prototype.filter.call(forms, function (form) {
+          form.addEventListener(
+            "htmx:validate",
+            function (event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+
+          // Also handle regular submit for non-htmx fallback
+          form.addEventListener(
+            "submit",
+            function (event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
+      },
+      false
+    );
+  })();
+
+  // Show spinner during htmx requests
+  document.body.addEventListener("htmx:beforeRequest", function (event) {
+    document.getElementById("guild-spinner").classList.remove("d-none");
+  });
+
+  document.body.addEventListener("htmx:afterRequest", function (event) {
+    document.getElementById("guild-spinner").classList.add("d-none");
+  });
+</script>
+{{ end }}

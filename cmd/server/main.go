@@ -20,8 +20,9 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Create Blizzard API client
+	// Create API clients
 	blizzardClient := api.NewBlizzardClient(cfg.ClientID, cfg.ClientSecret)
+	warcraftlogsClient := api.NewWarcraftlogsClient(cfg.WarcraftlogsAPIToken)
 
 	// Create Redis client
 	redisClient, err := redis.NewClient(&cfg.Redis)
@@ -30,10 +31,16 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	// Create character handler
+	// Create handlers
 	characterHandler, err := handlers.NewCharacterHandler(cfg, blizzardClient, redisClient)
 	if err != nil {
 		log.Fatalf("Failed to create character handler: %v", err)
+	}
+
+	// Create guild handler
+	guildHandler, err := handlers.NewGuildHandler(cfg, warcraftlogsClient, redisClient)
+	if err != nil {
+		log.Fatalf("Failed to create guild handler: %v", err)
 	}
 
 	// Create recent searches handler
@@ -41,7 +48,7 @@ func main() {
 
 	// Create router
 	r := router.New(cfg)
-	r.Setup(characterHandler, recentSearchesHandler)
+	r.Setup(characterHandler, guildHandler, recentSearchesHandler)
 
 	// Wrap router with middleware
 	handler := middleware.RecoveryMiddleware(

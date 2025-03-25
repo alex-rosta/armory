@@ -1,0 +1,95 @@
+{{ define "guild" }}
+<div class="guild-container">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card bg-dark text-white border-0">
+          <div class="card-header">
+            <div class="d-flex align-items-center rounded-lg">
+              <div>
+                <h2 class="mb-0">{{ .Name }}</h2>
+                <p class="mb-0">{{ .Realm }} ({{ .Region }})</p>
+                <p class="mb-0">Members: {{ .MemberCount }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="guild-stats mb-4">
+                  <h4 class="border-bottom pb-2">Guild Rankings</h4>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-trophy text-warning"></i> Server Rank:</span>
+                    <span class="fw-bold" style="color: {{ .ServerRankColor }}">{{ .ServerRank }}</span>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-trophy-fill text-info"></i> Region Rank:</span>
+                    <span class="fw-bold" style="color: {{ .RegionRankColor }}">{{ .RegionRank }}</span>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-globe text-success"></i> World Rank:</span>
+                    <span class="fw-bold" style="color: {{ .WorldRankColor }}">{{ .WorldRank }}</span>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>
+                      <a href="https://www.warcraftlogs.com/guild/{{ .Region }}/{{ .Realm }}/{{ .Name }}" target="_blank">
+                        Warcraft Logs
+                      </a>
+                    </span>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>
+                      <a href="https://raider.io/guilds/{{ .Region }}/{{ .Realm }}/{{ .Name }}" target="_blank">
+                        Raider.io
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="guild-members">
+                  <h4 class="border-bottom pb-2">Recent Raiders</h4>
+                  
+                  {{ if .Members }}
+                    <div class="table-responsive">
+                      <table class="table table-dark table-striped">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {{ range .Members }}
+                            <tr>
+                              <td>{{ .Name }}</td>
+                              <td>{{ .Type }}</td>
+                            </tr>
+                          {{ end }}
+                        </tbody>
+                      </table>
+                    </div>
+                  {{ else }}
+                    <p>No recent raid data available.</p>
+                  {{ end }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer text-center">
+            <small>Data provided by Warcraftlogs API</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WoW Armory</title>
+    <title>WoW Armory - Guild Lookup</title>
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/styles.css" />
     <link
@@ -52,7 +52,7 @@
         width: 100%;
         max-width: 800px;
       }
-      .character-container {
+      .guild-container {
         background-color: rgba(33, 37, 41, 0.9);
         border-radius: 0.5rem;
         padding: 2rem;
@@ -90,17 +90,17 @@
 
         <ul class="nav nav-tabs mb-4">
           <li class="nav-item">
-            <a class="nav-link active" href="/">Character Lookup</a>
+            <a class="nav-link" href="/">Character Lookup</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/guild-lookup">Guild Lookup</a>
+            <a class="nav-link active" href="/guild-lookup">Guild Lookup</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/recent-searches">Recent Searches</a>
           </li>
         </ul>
 
-        {{ template "form" . }}
+        {{ template "guild_form" . }}
       </div>
     </div>
 

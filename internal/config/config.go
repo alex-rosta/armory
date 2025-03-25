@@ -11,12 +11,13 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	Port         int
-	ClientID     string
-	ClientSecret string
-	TemplatesDir string
-	AssetsDir    string
-	Redis        RedisConfig
+	Port                 int
+	ClientID             string
+	ClientSecret         string
+	TemplatesDir         string
+	AssetsDir            string
+	Redis                RedisConfig
+	WarcraftlogsAPIToken string
 }
 
 // RedisConfig holds Redis-specific configuration
@@ -47,6 +48,7 @@ func Load() (*Config, error) {
 	// Get client ID and secret from environment variables
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
+	warcraftlogsAPIToken := os.Getenv("WARCRAFTLOGS_API_TOKEN")
 
 	if clientID == "" || clientSecret == "" {
 		return nil, fmt.Errorf("missing required environment variables: CLIENT_ID and CLIENT_SECRET")
@@ -74,11 +76,12 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		Port:         port,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		TemplatesDir: templatesDir,
-		AssetsDir:    assetsDir,
+		Port:                 port,
+		ClientID:             clientID,
+		ClientSecret:         clientSecret,
+		TemplatesDir:         templatesDir,
+		AssetsDir:            assetsDir,
+		WarcraftlogsAPIToken: warcraftlogsAPIToken,
 		Redis: RedisConfig{
 			Addr:     redisAddr,
 			Password: redisPassword,
