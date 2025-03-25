@@ -2,54 +2,256 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode toggle styles */
+.theme-toggle {
+  @apply w-10 h-5 bg-gray-200 rounded-full dark:bg-gray-700 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600;
+}
+
+.theme-toggle-active {
+  @apply bg-secondary-600 after:translate-x-full after:border-white;
+}
+
+/* WoW Class styles with enhanced gradients */
 .Warrior {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #C79C6E, #8B4513);
+}
+.Warrior:hover {
+  filter: brightness(1.2);
 }
 
 .Paladin {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #F58CBA, #C2185B);
+}
+.Paladin:hover {
+  filter: brightness(1.2);
 }
 
 .Hunter {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #ABD473, #6B8E23);
+}
+.Hunter:hover {
+  filter: brightness(1.2);
 }
 
 .Rogue {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #FFF569, #FFD700);
+}
+.Rogue:hover {
+  filter: brightness(1.2);
 }
 
 .Priest {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #FFFFFF, #D3D3D3);
+}
+.Priest:hover {
+  filter: brightness(1.2);
 }
 
 .Death {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #C41F3B, #8B0000);
+}
+.Death:hover {
+  filter: brightness(1.2);
 }
 
 .Shaman {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #0070DE, #1E90FF);
+}
+.Shaman:hover {
+  filter: brightness(1.2);
 }
 
 .Mage {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #69CCF0, #4682B4);
+}
+.Mage:hover {
+  filter: brightness(1.2);
 }
 
 .Warlock {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #9482C9, #4B0082);
+}
+.Warlock:hover {
+  filter: brightness(1.2);
 }
 
 .Monk {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #00FF96, #008000);
+}
+.Monk:hover {
+  filter: brightness(1.2);
 }
 
 .Druid {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #FF7D0A, #FF4500);
+}
+.Druid:hover {
+  filter: brightness(1.2);
 }
 
 .Demon {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #A330C9, #800080);
+}
+.Demon:hover {
+  filter: brightness(1.2);
 }
 
 .Evoker {
+  @apply relative overflow-hidden transition-all duration-300;
   background: linear-gradient(45deg, #33937F, #006400);
+}
+.Evoker:hover {
+  filter: brightness(1.2);
+}
+
+.astounding {
+  @apply relative overflow-hidden transition-all duration-300;
+  background: linear-gradient(45deg, #FF8000, #FF4500);
+}
+.astounding:hover {
+  filter: brightness(1.2);
+}
+
+.uncommon {
+  @apply relative overflow-hidden transition-all duration-300;
+  background: linear-gradient(45deg, #00FF00, #008000);
+}
+.uncommon:hover {
+  filter: brightness(1.2);
+}
+
+/* Custom component styles using @apply */
+@layer components {
+  .btn-wow {
+    @apply px-4 py-2 text-white font-medium rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+  }
+  
+  .btn-wow-primary {
+    @apply btn-wow bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 focus:ring-primary-500;
+  }
+  
+  .btn-wow-secondary {
+    @apply btn-wow bg-gradient-to-r from-secondary-600 to-secondary-700 hover:from-secondary-500 hover:to-secondary-600 focus:ring-secondary-500;
+  }
+  
+  .btn-wow-alliance {
+    @apply btn-wow bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 focus:ring-blue-500;
+  }
+  
+  .btn-wow-horde {
+    @apply btn-wow bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:ring-red-500;
+  }
+  
+  .card-wow {
+    @apply relative overflow-hidden rounded-lg shadow-xl transition-all duration-300 bg-opacity-90 hover:shadow-2xl animate-fade-in dark:bg-gray-800 dark:bg-opacity-90 bg-white;
+  }
+  
+  .card-header-wow {
+    @apply p-4 border-b border-opacity-20 bg-opacity-50 dark:border-gray-700 dark:bg-opacity-50;
+  }
+  
+  .card-body-wow {
+    @apply p-6;
+  }
+  
+  .card-footer-wow {
+    @apply p-4 border-t border-opacity-20 text-sm text-center dark:border-gray-700;
+  }
+  
+  .table-wow {
+    @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+  }
+  
+  .table-wow thead {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+  
+  .table-wow th {
+    @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:text-gray-400;
+  }
+  
+  .table-wow tbody {
+    @apply divide-y divide-gray-200 dark:divide-gray-700;
+  }
+  
+  .table-wow td {
+    @apply px-6 py-4 whitespace-nowrap text-sm;
+  }
+  
+  .nav-wow {
+    @apply flex border-b border-gray-200 dark:border-gray-700 mb-4;
+  }
+  
+  .nav-item-wow {
+    @apply mr-1;
+  }
+  
+  .nav-link-wow {
+    @apply inline-block py-2 px-4 text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300;
+  }
+  
+  .nav-link-wow-active {
+    @apply nav-link-wow font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400;
+  }
+  
+  .container-wow {
+    @apply max-w-screen-lg mx-auto p-4 animate-fade-in;
+  }
+  
+  .rank-legendary {
+    @apply text-amber-500 animate-pulse-slow font-bold;
+  }
+  
+  .rank-epic {
+    @apply text-purple-500 font-semibold;
+  }
+  
+  .rank-rare {
+    @apply text-blue-500;
+  }
+  
+  .rank-uncommon {
+    @apply text-green-500;
+  }
+  
+  .rank-common {
+    @apply text-gray-400 dark:text-gray-500;
+  }
+}
+
+/* Dark mode styles */
+.dark body {
+  @apply bg-gray-900 text-white;
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+  
+  .wow-blur-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .gradient-heading {
+    @apply font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500;
+  }
 }

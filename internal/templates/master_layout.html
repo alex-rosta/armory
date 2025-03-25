@@ -1,17 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WoW Armory{{ if .PageTitle }} - {{ .PageTitle }}{{ end }}</title>
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/styles.css" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -20,108 +14,103 @@
     <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon" />
     <!-- JavaScript -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        background-image: url("/assets/media/wow-bg.png");
-        background-size: cover;
-        backdrop-filter: blur(10px);
-      }
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        color: white;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-      .main-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        padding: 2rem 0;
-      }
-      .form-container, .character-container, .guild-container, .recent-searches-container {
-        background-color: rgba(33, 37, 41, 0.9);
-        border-radius: 0.5rem;
-        padding: 2rem;
-        width: 100%;
-        max-width: 800px;
-      }
-      .form-container {
-        margin-bottom: 2rem;
-      }
-      .footer {
-        text-align: center;
-        padding: 1rem;
-        background-color: rgba(33, 37, 41, 0.7);
-        margin-top: auto;
-      }
-      .btn-primary {
-        background-color: #7b68ee;
-        border-color: #7b68ee;
-      }
-      .btn-primary:hover {
-        background-color: #6a5acd;
-        border-color: #6a5acd;
-      }
-      .nav-tabs .nav-link {
-        color: #fff;
-      }
-      .nav-tabs .nav-link.active {
-        background-color: rgba(123, 104, 238, 0.2);
-        color: #fff;
-        border-color: #7b68ee;
-      }
-    </style>
   </head>
-  <body>
-    <div class="main-container">
-      <div class="{{ if .ContainerClass }}{{ .ContainerClass }}{{ else }}form-container{{ end }}">
-        <h1 class="text-center mb-4">WoW Armory</h1>
-
-        <ul class="nav nav-tabs mb-4">
-          <li class="nav-item">
-            <a class="nav-link {{ if eq .ActiveTab "character" }}active{{ end }}" href="/">Character Lookup</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ if eq .ActiveTab "guild" }}active{{ end }}" href="/guild-lookup">Guild Lookup</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {{ if eq .ActiveTab "recent" }}active{{ end }}" href="/recent-searches">Recent Searches</a>
-          </li>
-        </ul>
-
-        {{ if eq .ContentTemplate "form" }}
-          {{ template "form" . }}
-        {{ else if eq .ContentTemplate "guild_form" }}
-          {{ template "guild_form" . }}
-        {{ else if eq .ContentTemplate "character" }}
-          {{ template "character" . }}
-        {{ else if eq .ContentTemplate "guild" }}
-          {{ template "guild" . }}
-        {{ else if eq .ContentTemplate "recent_searches_container" }}
-          {{ template "recent_searches_container" . }}
-        {{ else if eq .ContentTemplate "error" }}
-          {{ template "error" . }}
-        {{ end }}
-      </div>
-
+  <body class="bg-wow-bg bg-cover bg-fixed min-h-screen flex flex-col text-gray-800 dark:text-white font-sans wow-blur-backdrop transition-colors duration-300">
+    <!-- Dark Mode Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+      <label for="theme-toggle" class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="theme-toggle" class="sr-only" />
+        <div class="theme-toggle relative">
+          <span class="sr-only">Toggle dark mode</span>
+        </div>
+        <span class="ml-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+          <i class="bi bi-moon-stars-fill dark:hidden"></i>
+          <i class="bi bi-sun-fill hidden dark:inline"></i>
+        </span>
+      </label>
     </div>
 
-    <footer class="footer">
-      <div class="container">
-        <p class="mb-0">
-          WoW Armory - A World of Warcraft Character Lookup Tool
-        </p>
-        <i class="bi bi-github"></i>
-        <a href="https://github.com/alex-rosta/armory" target="_blank"
-          >GitHub</a
-        >
+    <div class="flex-1 flex flex-col items-center py-8">
+      <div class="container-wow">
+        <div class="{{ if .ContainerClass }}{{ .ContainerClass }} card-wow{{ else }}card-wow{{ end }}">
+          <div class="card-header-wow bg-gradient-to-r from-primary-700/50 to-secondary-700/50 dark:from-primary-900/50 dark:to-secondary-900/50">
+            <h1 class="text-center text-3xl font-bold mb-2 text-shadow-lg gradient-heading animate-glow">WoW Armory</h1>
+            
+            <nav class="nav-wow">
+              <div class="nav-item-wow">
+                <a class="{{ if eq .ActiveTab "character" }}nav-link-wow-active{{ else }}nav-link-wow{{ end }}" href="/">
+                  <i class="bi bi-person-fill mr-1"></i> Character
+                </a>
+              </div>
+              <div class="nav-item-wow">
+                <a class="{{ if eq .ActiveTab "guild" }}nav-link-wow-active{{ else }}nav-link-wow{{ end }}" href="/guild-lookup">
+                  <i class="bi bi-people-fill mr-1"></i> Guild
+                </a>
+              </div>
+              <div class="nav-item-wow">
+                <a class="{{ if eq .ActiveTab "recent" }}nav-link-wow-active{{ else }}nav-link-wow{{ end }}" href="/recent-searches">
+                  <i class="bi bi-clock-history mr-1"></i> Recent
+                </a>
+              </div>
+            </nav>
+          </div>
+
+          <div class="card-body-wow">
+            {{ if eq .ContentTemplate "form" }}
+              {{ template "form" . }}
+            {{ else if eq .ContentTemplate "guild_form" }}
+              {{ template "guild_form" . }}
+            {{ else if eq .ContentTemplate "character" }}
+              {{ template "character" . }}
+            {{ else if eq .ContentTemplate "guild" }}
+              {{ template "guild" . }}
+            {{ else if eq .ContentTemplate "recent_searches_container" }}
+              {{ template "recent_searches_container" . }}
+            {{ else if eq .ContentTemplate "error" }}
+              {{ template "error" . }}
+            {{ end }}
+          </div>
+
+          <div class="card-footer-wow bg-gray-100/30 dark:bg-gray-800/30">
+            <p class="text-gray-600 dark:text-gray-400">
+              WoW Armory - A World of Warcraft Character Lookup Tool
+              <a href="https://github.com/alex-rosta/armory" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline ml-2">
+                <i class="bi bi-github"></i> GitHub
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
-    </footer>
+    </div>
+
+    <!-- Dark Mode Script -->
+    <script>
+      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+      const toggleEl = document.getElementById('theme-toggle');
+      const toggleSwitch = document.querySelector('.theme-toggle');
+      
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        toggleEl.checked = true;
+        toggleSwitch.classList.add('theme-toggle-active');
+      } else {
+        document.documentElement.classList.remove('dark');
+        toggleEl.checked = false;
+        toggleSwitch.classList.remove('theme-toggle-active');
+      }
+
+      // Whenever the user explicitly chooses to respect the OS preference
+      toggleEl.addEventListener('change', function() {
+        if (this.checked) {
+          document.documentElement.classList.add('dark');
+          toggleSwitch.classList.add('theme-toggle-active');
+          localStorage.theme = 'dark';
+        } else {
+          document.documentElement.classList.remove('dark');
+          toggleSwitch.classList.remove('theme-toggle-active');
+          localStorage.theme = 'light';
+        }
+      });
+    </script>
   </body>
 </html>
