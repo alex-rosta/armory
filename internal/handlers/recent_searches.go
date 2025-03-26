@@ -2,39 +2,51 @@ package handlers
 
 import (
 	"context"
-	"html/template"
 	"net/http"
 	"time"
-	"wowarmory/internal/config"
-	redisClient "wowarmory/internal/redis"
+	"wowarmory/internal/interfaces"
 )
 
-// RecentSearchesHandler handles recent searches HTTP requests
+// RecentSearchesHandler handles recent searches-related HTTP requests
 type RecentSearchesHandler struct {
-	config      *config.Config
-	redisClient *redisClient.Client
-	templates   *template.Template
+	*BaseHandler
 }
 
-// RecentSearchesData represents the data for the recent searches template
-type RecentSearchesData struct {
-	Searches []redisClient.SearchEntry
+// Ensure RecentSearchesHandler implements Handler interface
+var _ interfaces.Handler = (*RecentSearchesHandler)(nil)
+
+// GetName returns the name of the handler
+func (h *RecentSearchesHandler) GetName() string {
+	return "RecentSearchesHandler"
 }
 
 // NewRecentSearchesHandler creates a new RecentSearchesHandler
-func NewRecentSearchesHandler(cfg *config.Config, redisClient *redisClient.Client, tmpl *template.Template) *RecentSearchesHandler {
+func NewRecentSearchesHandler(base *BaseHandler) *RecentSearchesHandler {
 	return &RecentSearchesHandler{
-		config:      cfg,
-		redisClient: redisClient,
-		templates:   tmpl,
+		BaseHandler: base,
 	}
 }
 
-// GetRecentSearches handles the request to get recent searches
-func (h *RecentSearchesHandler) GetRecentSearches(w http.ResponseWriter, r *http.Request) {
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
+// RegisterRoutes registers the handler's routes with the router
+func (h *RecentSearchesHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
+	router.HandleFunc("/recent-searches", h.GetRecentSearchesPage)
+	router.HandleFunc("/recent-searches-data", h.GetRecentSearches)
+}
 
+// GetRecentSearchesPage handles the recent searches page request
+func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *http.Request) {
+	layoutData := map[string]interface{}{
+		"PageTitle": "Recent Searches",
+		"ActiveTab": "recent-searches",
+	}
+
+	if err := h.RenderWithLayout(w, "recent_searches_container", layoutData); err != nil {
+		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// GetRecentSearches handles the htmx request for recent searches data
+func (h *RecentSearchesHandler) GetRecentSearches(w http.ResponseWriter, r *http.Request) {
 	// Get recent searches from Redis
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
@@ -45,26 +57,13 @@ func (h *RecentSearchesHandler) GetRecentSearches(w http.ResponseWriter, r *http
 		return
 	}
 
-	// Create data for the template
-	data := RecentSearchesData{
-		Searches: searches,
+	// Prepare data for the template
+	data := map[string]interface{}{
+		"Searches": searches,
 	}
 
-	// Execute the template
-	if err := h.templates.ExecuteTemplate(w, "recent_searches", data); err != nil {
+	// Execute the recent searches template
+	if err := h.RenderTemplate(w, "recent_searches", data); err != nil {
 		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetRecentSearchesPage handles the request to get the recent searches page
-func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *http.Request) {
-	// Set content type
-	w.Header().Set("Content-Type", "text/html")
-
-	// Execute the layout template with the recent searches template
-	if err := h.templates.ExecuteTemplate(w, "layout_recent_searches.html", nil); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
-		return
 	}
 }

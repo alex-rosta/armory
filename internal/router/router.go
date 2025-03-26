@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"wowarmory/internal/config"
-	"wowarmory/internal/handlers"
+	"wowarmory/internal/interfaces"
 	"wowarmory/internal/middleware"
 )
 
@@ -14,6 +14,9 @@ type Router struct {
 	mux    *http.ServeMux
 }
 
+// Ensure Router implements RouteRegistrar interface
+var _ interfaces.RouteRegistrar = (*Router)(nil)
+
 // New creates a new router
 func New(cfg *config.Config) *Router {
 	return &Router{
@@ -22,17 +25,21 @@ func New(cfg *config.Config) *Router {
 	}
 }
 
-// Setup sets up the routes for the application
-func (r *Router) Setup(characterHandler *handlers.CharacterHandler, recentSearchesHandler *handlers.RecentSearchesHandler) {
+// HandleFunc implements the RouteRegistrar interface
+func (r *Router) HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	r.mux.HandleFunc(pattern, handler)
+}
+
+// SetupHandlers registers routes for all handlers
+func (r *Router) SetupHandlers(handlers []interfaces.Handler) {
 	// Set up static file server
 	fileServer := http.FileServer(http.Dir(r.config.AssetsDir))
 	r.mux.Handle("/assets/", http.StripPrefix("/assets/", middleware.ContentTypeMiddleware(fileServer)))
 
-	// Set up routes
-	r.mux.HandleFunc("/", characterHandler.LookupCharacter)
-	r.mux.HandleFunc("/character", characterHandler.GetCharacterTemplate)
-	r.mux.HandleFunc("/recent-searches", recentSearchesHandler.GetRecentSearchesPage)
-	r.mux.HandleFunc("/recent-searches-data", recentSearchesHandler.GetRecentSearches)
+	// Register routes for each handler
+	for _, handler := range handlers {
+		handler.RegisterRoutes(r)
+	}
 }
 
 // ServeHTTP implements the http.Handler interface

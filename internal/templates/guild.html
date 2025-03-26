@@ -1,0 +1,110 @@
+{{ define "guild" }}
+<div class="animate-fade-in">
+  <div class="p-4 bg-gradient-to-r from-primary-100/20 to-secondary-100/20 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-lg mb-6 shadow-md">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+      <div class="mb-4 md:mb-0">
+        <h2 class="text-2xl font-bold gradient-heading">{{ .Name }}</h2>
+        <p class="text-gray-600 dark:text-gray-300">{{ .Realm }} ({{ .Region }})</p>
+        <p class="text-gray-600 dark:text-gray-300">Members: {{ .MemberCount }}</p>
+      </div>
+      <div class="flex space-x-2">
+        <a href="https://www.warcraftlogs.com/guild/{{ .Region }}/{{ .Realm }}/{{ .Name }}" target="_blank" class="btn-wow-secondary text-sm">
+          <i class="bi bi-bar-chart-fill mr-1"></i> Warcraft Logs
+        </a>
+        <a href="https://raider.io/guilds/{{ .Region }}/{{ .Realm }}/{{ .Name }}" target="_blank" class="btn-wow-primary text-sm">
+          <i class="bi bi-globe mr-1"></i> Raider.io
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Guild Rankings -->
+    <div class="card-wow overflow-hidden transform transition hover:scale-[1.01]">
+      <div class="card-header-wow bg-gradient-to-r from-primary-100/40 to-secondary-100/30 dark:from-primary-900/40 dark:to-secondary-900/30">
+        <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">
+          <i class="bi bi-trophy mr-2"></i>Guild Rankings
+        </h3>
+      </div>
+      <div class="card-body-wow">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center">
+              <div class="w-10 h-10 flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 rounded-full mr-3">
+                <i class="bi bi-trophy text-amber-500 text-xl"></i>
+              </div>
+              <span class="font-medium text-gray-700 dark:text-gray-300">Server Rank</span>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-bold {{ .ServerRankColor }} animate-pulse-slow">{{ .ServerRank }}</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center">
+              <div class="w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full mr-3">
+                <i class="bi bi-trophy-fill text-blue-500 text-xl"></i>
+              </div>
+              <span class="font-medium text-gray-700 dark:text-gray-300">Region Rank</span>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-bold {{ .RegionRankColor }}">{{ .RegionRank }}</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <div class="flex items-center">
+              <div class="w-10 h-10 flex items-center justify-center bg-green-100 dark:bg-green-900/30 rounded-full mr-3">
+                <i class="bi bi-globe text-green-500 text-xl"></i>
+              </div>
+              <span class="font-medium text-gray-700 dark:text-gray-300">World Rank</span>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-bold {{ .WorldRankColor }}">{{ .WorldRank }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Guild Members -->
+    <div class="card-wow overflow-hidden transform transition hover:scale-[1.01]">
+      <div class="card-header-wow bg-gradient-to-r from-secondary-100/40 to-primary-100/30 dark:from-secondary-900/40 dark:to-primary-900/30">
+        <h3 class="text-xl font-semibold text-secondary-700 dark:text-secondary-300">
+          <i class="bi bi-people-fill mr-2"></i>Recent Raiders
+        </h3>
+      </div>
+      <div class="card-body-wow">
+        {{ if .Members }}
+          <div class="overflow-x-auto">
+            <table class="table-wow">
+              <thead>
+                <tr>
+                  <th class="py-3">Name</th>
+                  <th class="py-3 text-right">Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ range .Members }}
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150">
+                    <td class="py-3">
+                      <p 
+                         class="font-bold text-gray-900 dark:text-gray-100">
+                        {{ .Name }}
+                    </p>
+                    </td>
+                    <td class="py-3 text-right font-medium text-gray-500 dark:text-gray-400">{{ .Type }}</td>
+                  </tr>
+                {{ end }}
+              </tbody>
+            </table>
+          </div>
+        {{ else }}
+          <div class="flex flex-col items-center justify-center py-8">
+            <i class="bi bi-exclamation-circle text-4xl text-gray-400 mb-2"></i>
+            <p class="text-gray-500 dark:text-gray-400">No recent raid data available</p>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+  
+  <div class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+    <i class="bi bi-info-circle mr-1"></i> Data provided by Warcraftlogs API
+  </div>
+</div>
+{{ end }}

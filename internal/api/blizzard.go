@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"wowarmory/internal/interfaces"
 )
 
 // BlizzardClient is a client for the Blizzard API
@@ -14,6 +15,14 @@ type BlizzardClient struct {
 	clientID     string
 	clientSecret string
 	httpClient   *http.Client
+}
+
+// Ensure BlizzardClient implements BlizzardAPI interface
+var _ interfaces.BlizzardAPI = (*BlizzardClient)(nil)
+
+// GetClientName returns the name of the client
+func (c *BlizzardClient) GetClientName() string {
+	return "BlizzardAPI"
 }
 
 // NewBlizzardClient creates a new Blizzard API client

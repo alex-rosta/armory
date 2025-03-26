@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 	"wowarmory/internal/config"
+	"wowarmory/internal/interfaces"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -23,14 +24,18 @@ const (
 	SearchExpirationHours = 24
 )
 
-// Client is a wrapper around the Redis client
+// Client is a wrapper around the Redis client that implements the SearchStore interface
 type Client struct {
 	rdb *redis.Client
 }
 
-// SearchEntry represents a character search entry
+// Ensure Client implements SearchStore interface
+var _ interfaces.SearchStore = (*Client)(nil)
+
+// SearchEntry represents a search entry
 type SearchEntry struct {
-	Character string    `json:"character"`
+	Type      string    `json:"type"`
+	Name      string    `json:"name"`
 	Realm     string    `json:"realm"`
 	Region    string    `json:"region"`
 	Timestamp time.Time `json:"timestamp"`
@@ -65,11 +70,12 @@ func (c *Client) Close() error {
 	return c.rdb.Close()
 }
 
-// RecordSearch records a character search in Redis
-func (c *Client) RecordSearch(ctx context.Context, region, realm, character string) error {
+// RecordSearch records a search in Redis
+func (c *Client) RecordSearch(ctx context.Context, searchType, region, realm, name string) error {
 	// Create a search entry
 	entry := SearchEntry{
-		Character: character,
+		Type:      searchType,
+		Name:      name,
 		Realm:     realm,
 		Region:    region,
 		Timestamp: time.Now(),
@@ -83,7 +89,7 @@ func (c *Client) RecordSearch(ctx context.Context, region, realm, character stri
 
 	// Add the entry to the sorted set with the current timestamp as the score
 	score := float64(time.Now().Unix())
-	key := fmt.Sprintf("%s:%s:%s", region, realm, character)
+	key := fmt.Sprintf("%s:%s:%s:%s", searchType, region, realm, name)
 
 	// Use a pipeline to execute multiple commands atomically
 	pipe := c.rdb.Pipeline()
@@ -113,7 +119,7 @@ func (c *Client) RecordSearch(ctx context.Context, region, realm, character stri
 }
 
 // GetRecentSearches gets the most recent character searches
-func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
+func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntry, error) {
 	// Get the most recent searches from the sorted set (highest scores first)
 	keys, err := c.rdb.ZRevRange(ctx, RecentSearchesKey, 0, MaxRecentSearches-1).Result()
 	if err != nil {
@@ -122,7 +128,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 
 	// If there are no searches, return an empty slice
 	if len(keys) == 0 {
-		return []SearchEntry{}, nil
+		return []interfaces.SearchEntry{}, nil
 	}
 
 	// Get the JSON data for each key
@@ -139,7 +145,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 	}
 
 	// Parse the JSON data into search entries
-	entries := make([]SearchEntry, 0, len(keys))
+	entries := make([]interfaces.SearchEntry, 0, len(keys))
 
 	for i, cmd := range cmds {
 		// Skip entries that no longer exist (may have expired)
@@ -155,6 +161,15 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 		if err := json.Unmarshal([]byte(val), &entry); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal search entry: %w", err)
 		}
+
+		// Convert internal SearchEntry to interfaces.SearchEntry
+		interfaceEntry := interfaces.SearchEntry{
+			Type:      entry.Type,
+			Name:      entry.Name,
+			Realm:     entry.Realm,
+			Region:    entry.Region,
+			Timestamp: entry.Timestamp.Format(time.DateTime),
+		}
 		// Delete keys from sorted set and completely if expired
 		if time.Since(entry.Timestamp) > time.Hour*SearchExpirationHours {
 			if err := c.rdb.Del(ctx, keys[i]).Err(); c.rdb.ZRem(ctx, RecentSearchesKey, keys[i]).Err() != nil {
@@ -163,7 +178,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]SearchEntry, error) {
 			continue
 		}
 
-		entries = append(entries, entry)
+		entries = append(entries, interfaceEntry)
 	}
 
 	return entries, nil

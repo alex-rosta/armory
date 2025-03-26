@@ -74,7 +74,7 @@ func testRecordSearch(cfg *config.RedisConfig) func(t *testing.T) {
 		character := "test-character-" + time.Now().Format("20060102150405")
 
 		// Record a search
-		err = client.RecordSearch(ctx, region, realm, character)
+		err = client.RecordSearch(ctx, "character", region, realm, character)
 		if err != nil {
 			t.Fatalf("Failed to record search: %v", err)
 		}
@@ -108,7 +108,7 @@ func testGetRecentSearches(cfg *config.RedisConfig) func(t *testing.T) {
 		}
 
 		for _, tc := range testCharacters {
-			err = client.RecordSearch(ctx, tc.region, tc.realm, tc.character)
+			err = client.RecordSearch(ctx, "character", tc.region, tc.realm, tc.character)
 			if err != nil {
 				t.Fatalf("Failed to record search for %s-%s-%s: %v", tc.region, tc.realm, tc.character, err)
 			}
@@ -132,7 +132,7 @@ func testGetRecentSearches(cfg *config.RedisConfig) func(t *testing.T) {
 				t.Log("...")
 				break
 			}
-			t.Logf("Search %d: %s-%s-%s at %s", i+1, search.Region, search.Realm, search.Character, search.Timestamp.Format(time.RFC3339))
+			t.Logf("Search %d: %s-%s-%s at %s", i+1, search.Region, search.Realm, search.Name, search.Timestamp)
 		}
 	}
 }

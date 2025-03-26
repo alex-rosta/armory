@@ -8,9 +8,11 @@ import (
 	"wowarmory/internal/api"
 	"wowarmory/internal/config"
 	"wowarmory/internal/handlers"
+	"wowarmory/internal/interfaces"
 	"wowarmory/internal/middleware"
 	"wowarmory/internal/redis"
 	"wowarmory/internal/router"
+	"wowarmory/internal/templates"
 )
 
 func main() {
@@ -20,8 +22,9 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Create Blizzard API client
+	// Create API clients
 	blizzardClient := api.NewBlizzardClient(cfg.ClientID, cfg.ClientSecret)
+	warcraftlogsClient := api.NewWarcraftlogsClient(cfg.WarcraftlogsAPIToken)
 
 	// Create Redis client
 	redisClient, err := redis.NewClient(&cfg.Redis)
@@ -30,18 +33,30 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	// Create character handler
-	characterHandler, err := handlers.NewCharacterHandler(cfg, blizzardClient, redisClient)
+	// Create template manager
+	templateMgr, err := templates.NewManager(cfg.TemplatesDir)
 	if err != nil {
-		log.Fatalf("Failed to create character handler: %v", err)
+		log.Fatalf("Failed to create template manager: %v", err)
 	}
 
-	// Create recent searches handler
-	recentSearchesHandler := handlers.NewRecentSearchesHandler(cfg, redisClient, characterHandler.GetTemplates())
+	// Create base handler
+	baseHandler := handlers.NewBaseHandler(cfg, redisClient, templateMgr)
+
+	// Create handlers
+	characterHandler := handlers.NewCharacterHandler(baseHandler, blizzardClient)
+	guildHandler := handlers.NewGuildHandler(baseHandler, warcraftlogsClient)
+	recentSearchesHandler := handlers.NewRecentSearchesHandler(baseHandler)
+
+	// Collect all handlers
+	appHandlers := []interfaces.Handler{
+		characterHandler,
+		guildHandler,
+		recentSearchesHandler,
+	}
 
 	// Create router
 	r := router.New(cfg)
-	r.Setup(characterHandler, recentSearchesHandler)
+	r.SetupHandlers(appHandlers)
 
 	// Wrap router with middleware
 	handler := middleware.RecoveryMiddleware(

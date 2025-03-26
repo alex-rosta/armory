@@ -1,63 +1,94 @@
 {{ define "recent_searches" }}
-<div class="container">
-  <h2 class="mb-4">Recent Character Searches (Last 24 Hours)</h2>
+<div class="animate-fade-in">
+  <div class="mb-6 text-center">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Recent Searches</h2>
+    <p class="text-gray-600 dark:text-gray-400">Last 24 hours of search activity</p>
+  </div>
 
   {{ if .Searches }}
-  <div class="table-responsive">
-    <table class="table table-dark table-hover">
-      <thead>
-        <tr>
-          <th>Character</th>
-          <th>Realm</th>
-          <th>Region</th>
-          <th>Time</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{ range .Searches }}
-        <tr>
-          <td class="character-name">{{ .Character }}</td>
-          <td class="realm-name">{{ .Realm }}</td>
-          <td>{{ .Region }}</td>
-          <td>{{ .Timestamp.Format "Jan 02, 2006 15:04:05" }}</td>
-          <td>
-            <a
-              href="/?region={{ .Region }}&realm={{ .Realm }}&character={{ .Character }}"
-              class="btn btn-sm btn-primary"
-            >
-              <i class="bi bi-search"></i> View
-            </a>
-          </td>
-        </tr>
-        {{ end }}
-      </tbody>
-    </table>
-  </div>
+    <div class="overflow-hidden rounded-lg shadow-lg">
+      <div class="overflow-x-auto">
+        <table class="table-wow">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Name</th>
+              <th>Realm</th>
+              <th>Region</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Searches }}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150">
+                <td class="py-4 text-gray-700 dark:text-gray-300 capitalize">
+                  {{ .Type }}
+                </td>
+                <td class="entity-name py-4 font-medium text-gray-900 dark:text-gray-100">
+                  {{ .Name }}
+                </td>
+                <td class="realm-name py-4 text-gray-700 dark:text-gray-300">
+                  {{ .Realm }}
+                </td>
+                <td class="py-4 text-gray-700 dark:text-gray-300 uppercase">
+                  {{ .Region }}
+                </td>
+                <td class="py-4 text-gray-600 dark:text-gray-400">
+                  {{ .Timestamp }}
+                </td>
+                <td class="py-4">
+                  {{ if eq .Type "character" }}
+                    <a
+                      href="/?region={{ .Region }}&realm={{ .Realm }}&character={{ .Name }}"
+                      class="btn-wow-primary text-sm py-1"
+                    >
+                      <i class="bi bi-search mr-1"></i> View
+                    </a>
+                  {{ else if eq .Type "guild" }}
+                    <a
+                      href="/guild-lookup?region={{ .Region }}&realm={{ .Realm }}&guild={{ .Name }}"
+                      class="btn-wow-primary text-sm py-1"
+                    >
+                      <i class="bi bi-search mr-1"></i> View
+                    </a>
+                  {{ end }}
+                </td>
+              </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-  <div class="mt-4 text-center">
-    <p class="text-muted">
-      <i class="bi bi-info-circle"></i>
-      Showing the most recent {{ len .Searches }} searches from the last 24
-      hours.
-    </p>
-  </div>
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center">
+        <i class="bi bi-info-circle mr-2"></i>
+        Showing the most recent {{ len .Searches }} searches from the last 24 hours
+      </p>
+    </div>
   {{ else }}
-  <div class="alert alert-info">
-    <i class="bi bi-info-circle"></i> No recent searches found. Try searching
-    for a character!
-  </div>
+    <div class="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-4 rounded-lg border-l-4 border-blue-500 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="bi bi-info-circle-fill text-blue-500 text-lg"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm">No recent searches found. Try searching for a character!</p>
+        </div>
+      </div>
+    </div>
   {{ end }}
 
-  <div class="mt-4 text-center">
-    <a href="/" class="btn btn-primary">
-      <i class="bi bi-search"></i> Search for a Character
+  <div class="mt-6 flex justify-center">
+    <a href="/" class="btn-wow-primary">
+      <i class="bi bi-search mr-2"></i> Search for a Character
     </a>
   </div>
 </div>
 
 <script>
-  // Function to format character names with first letter capitalized
+  // Function to format names with first letter capitalized
   function titleCase(str) {
     return str
       .toLowerCase()
@@ -68,12 +99,12 @@
       .join(" ");
   }
 
-  // Apply title case to character and realm names
+  // Apply title case to entity and realm names
   document.addEventListener("DOMContentLoaded", function () {
-    const characterCells = document.querySelectorAll("td:first-child");
-    const realmCells = document.querySelectorAll("td:nth-child(2)");
+    const nameCells = document.querySelectorAll("td.entity-name");
+    const realmCells = document.querySelectorAll("td.realm-name");
 
-    characterCells.forEach((cell) => {
+    nameCells.forEach((cell) => {
       cell.textContent = titleCase(cell.textContent);
     });
 
