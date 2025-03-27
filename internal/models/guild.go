@@ -30,7 +30,7 @@ type GuildMember struct {
 func NewGuildData(guildResponse interface{}, region, realm string) (*GuildData, error) {
 	// Type assertion for our known response structure
 	response, ok := guildResponse.(*api.GuildResponse)
-	if ok {
+	if response.GuildData.Guild.Name != "" && ok {
 		// We have a strongly typed response, use it directly
 		guildData := &GuildData{
 			Name:            response.GuildData.Guild.Name,
