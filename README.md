@@ -12,6 +12,9 @@ https://github.com/alexrsit/armory-helm
 - Character lookup by region, realm, and name
 - Display of character information including level, item level, achievement points, etc.
 - Display of character images
+- Guild lookup by region, realm, and name
+- Display Guild information such as realm, region and world ranking.
+- Display recent raiders in the guild using the warcraftlogs GraphQL API.
 - Global recent searches tracking with Redis (last 24 hours)
 - Azure Cache for Redis (Tested, probably works on AWS or GCP aswell)
 
@@ -29,6 +32,10 @@ Create a `.env` file in the root directory with the following content:
 # Blizzard API credentials
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
+
+# Warcraft Logs API token
+WARCRAFTLOGS_API_TOKEN=your_warcraftlogs_api_token
+# Get it here: https://www.warcraftlogs.com/api/docs the access token is valid for a year.
 
 # App is exposed on this port
 PORT=3000
@@ -69,6 +76,7 @@ The application will be available at http://localhost:3000
 ### Integration Tests
 
 The project includes integration tests for the Blizzard API and Redis components. These tests verify that the application correctly integrates with external services.
+Integration tests for warcraftlogs is under way.
 
 To run the integration tests use:
 
