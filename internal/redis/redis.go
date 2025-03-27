@@ -168,7 +168,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntr
 			Name:      entry.Name,
 			Realm:     entry.Realm,
 			Region:    entry.Region,
-			Timestamp: entry.Timestamp.Format(time.DateTime),
+			Timestamp: entry.Timestamp.Format(time.RFC822),
 		}
 		// Delete keys from sorted set and completely if expired
 		if time.Since(entry.Timestamp) > time.Hour*SearchExpirationHours {
