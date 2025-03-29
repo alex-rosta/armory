@@ -1,6 +1,6 @@
 # WoW Armory
 
-A web application that allows users to look up World of Warcraft character information using the Blizzard API.
+A web application that allows users to look up World of Warcraft character and guild information using the Blizzard and Warcraftlogs API.
 https://armory.rosta.dev
 
 ## Helmchart

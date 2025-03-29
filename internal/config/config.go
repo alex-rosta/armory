@@ -50,8 +50,8 @@ func Load() (*Config, error) {
 	clientSecret := os.Getenv("CLIENT_SECRET")
 	warcraftlogsAPIToken := os.Getenv("WARCRAFTLOGS_API_TOKEN")
 
-	if clientID == "" || clientSecret == "" {
-		return nil, fmt.Errorf("missing required environment variables: CLIENT_ID and CLIENT_SECRET")
+	if clientID == "" || clientSecret == "" || warcraftlogsAPIToken == "" {
+		return nil, fmt.Errorf("missing required environment variables: CLIENT_ID, CLIENT_SECRET or WARCRAFTLOGS_API_TOKEN")
 	}
 
 	// Set default directories
