@@ -42,7 +42,7 @@ jobs:
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          WARCRAFTLOGS_API_TOKEN: ${{ secrets.WARCRAFTLOGS_API_KEY }}
+          WARCRAFTLOGS_API_TOKEN: ${{ secrets.WARCRAFTLOGS_API_TOKEN }}
           REDIS_ADDR: localhost:6379
         run: |
           make test
