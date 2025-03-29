@@ -11,6 +11,7 @@ services:
       - REDIS_ADDR=redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_DB=0
+      - WARCRAFTLOGS_API_TOKEN=${WARCRAFTLOGS_API_TOKEN}
     depends_on:
       - redis
     restart: unless-stopped
