@@ -75,8 +75,7 @@ The application will be available at http://localhost:3000
 
 ### Integration Tests
 
-The project includes integration tests for the Blizzard API and Redis components. These tests verify that the application correctly integrates with external services.
-Integration tests for warcraftlogs is under way.
+The project includes integration tests for the Blizzard API, Warcraftlogs API and Redis components. These tests verify that the application correctly integrates with external services.
 
 To run the integration tests use:
 
