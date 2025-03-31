@@ -5,7 +5,7 @@ https://armory.rosta.dev
 
 ## Helmchart
 
-https://github.com/alexrsit/armory-helm
+https://github.com/alex-rosta/armory-helm
 
 ## Features
 
