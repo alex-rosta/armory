@@ -48,6 +48,11 @@
                 </a>
               </div>
               <div class="nav-item-wow">
+                <a class="{{ if eq .ActiveTab "token" }}nav-link-wow-active{{ else }}nav-link-wow{{ end }}" href="/token">
+                  <i class="bi bi-coin mr-1"></i> Token
+                </a>
+              </div>
+              <div class="nav-item-wow">
                 <a class="{{ if eq .ActiveTab "recent" }}nav-link-wow-active{{ else }}nav-link-wow{{ end }}" href="/recent-searches">
                   <i class="bi bi-clock-history mr-1"></i> Recent
                 </a>
@@ -64,6 +69,8 @@
               {{ template "character" . }}
             {{ else if eq .ContentTemplate "guild" }}
               {{ template "guild" . }}
+            {{ else if eq .ContentTemplate "token" }}
+              {{ template "token" . }}
             {{ else if eq .ContentTemplate "recent_searches_container" }}
               {{ template "recent_searches_container" . }}
             {{ else if eq .ContentTemplate "error" }}

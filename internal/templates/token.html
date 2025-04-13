@@ -1,0 +1,97 @@
+{{ define "token" }}
+<div class="animate-fade-in">
+  <div class="card-wow overflow-hidden">
+    <div class="card-header-wow bg-gradient-to-r from-yellow-500/90 to-amber-600/90 rounded-t-lg">
+      <div class="flex flex-col sm:flex-row items-center justify-between p-4">
+        <!-- Token Header -->
+        <div class="flex items-center mb-4 sm:mb-0">
+          <div class="mr-4 transform transition-transform duration-500 hover:scale-110">
+            <i class="bi bi-coin text-4xl text-yellow-200"></i>
+          </div>
+          <div class="text-white">
+            <h2 class="text-2xl font-bold mb-0 text-shadow-lg animate-glow">WoW Token</h2>
+            <p class="mb-0">Current Price Information</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body-wow">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+        <!-- EU Token Price -->
+        <div class="transform transition hover:scale-[1.01]">
+          <div class="card-wow overflow-hidden">
+            <div class="card-header-wow bg-blue-600/90">
+              <h3 class="text-xl font-semibold text-white flex items-center">
+                <i class="bi bi-currency-euro mr-2"></i>EU Token Price
+              </h3>
+            </div>
+            <div class="card-body-wow bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+              <div class="flex flex-col items-center p-6">
+                <div class="flex items-center justify-center w-24 h-24 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mb-4">
+                  <i class="bi bi-coin text-5xl text-yellow-500"></i>
+                </div>
+                <div class="text-center">
+                  <span class="text-4xl font-bold text-gray-800 dark:text-gray-100">{{ printf "%.0f" .EUPrice }}</span>
+                  <span class="ml-2 text-2xl text-yellow-600 dark:text-yellow-400">Gold</span>
+                </div>
+                <p class="mt-3 text-gray-600 dark:text-gray-400 text-sm text-center">
+                  Price to purchase one WoW Token with gold on EU realms
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- US Token Price -->
+        <div class="transform transition hover:scale-[1.01]">
+          <div class="card-wow overflow-hidden">
+            <div class="card-header-wow bg-red-600/90">
+              <h3 class="text-xl font-semibold text-white flex items-center">
+                <i class="bi bi-currency-dollar mr-2"></i>US Token Price
+              </h3>
+            </div>
+            <div class="card-body-wow bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+              <div class="flex flex-col items-center p-6">
+                <div class="flex items-center justify-center w-24 h-24 bg-yellow-100 dark:bg-yellow-900/30 rounded-full mb-4">
+                  <i class="bi bi-coin text-5xl text-yellow-500"></i>
+                </div>
+                <div class="text-center">
+                  <span class="text-4xl font-bold text-gray-800 dark:text-gray-100">{{ printf "%.0f" .USPrice }}</span>
+                  <span class="ml-2 text-2xl text-yellow-600 dark:text-yellow-400">Gold</span>
+                </div>
+                <p class="mt-3 text-gray-600 dark:text-gray-400 text-sm text-center">
+                  Price to purchase one WoW Token with gold on US realms
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price History Note -->
+      <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 mt-1">
+            <i class="bi bi-info-circle text-blue-500 text-xl"></i>
+          </div>
+          <div class="ml-3">
+            <h4 class="text-sm font-medium text-blue-800 dark:text-blue-300">About WoW Tokens</h4>
+            <div class="mt-2 text-sm text-blue-700 dark:text-blue-400">
+              <p>WoW Tokens can be purchased for real money and sold on the in-game auction house for gold. Alternatively, players can purchase tokens with gold and redeem them for Battle.net Balance or game time.</p>
+              <p class="mt-2">Prices fluctuate based on supply and demand. Data is updated from Blizzard's API in real-time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer-wow bg-gradient-to-r from-yellow-500/90 to-amber-600/90 text-white/90">
+      <div class="flex items-center justify-center space-x-2">
+        <i class="bi bi-arrow-repeat"></i>
+        <span>Prices update automatically</span>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}

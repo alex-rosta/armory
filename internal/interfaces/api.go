@@ -22,3 +22,10 @@ type WarcraftLogsAPI interface {
 	APIClient
 	GetGuild(ctx context.Context, name, serverSlug, serverRegion string) (interface{}, error)
 }
+
+// TokenAPI defines the interface for Token API operations
+type TokenAPI interface {
+	APIClient
+	GetAccessToken() (string, error)
+	GetTokenPrice(accessToken, region string) (float64, error)
+}
