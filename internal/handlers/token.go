@@ -58,7 +58,7 @@ func (h *TokenHandler) GetTokenPrice(w http.ResponseWriter, r *http.Request) {
 	// Render token template with token prices
 	layoutData := map[string]interface{}{
 		"ActiveTab":      "token",
-		"PageTitle":      "WoW Token Price",
+		"PageTitle":      "Token Price",
 		"ContainerClass": "token-container",
 		"EUPrice":        euGold,
 		"USPrice":        usGold,
