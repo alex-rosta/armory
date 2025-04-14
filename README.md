@@ -14,6 +14,7 @@ https://github.com/alex-rosta/armory-helm
 - Display of character images
 - Guild lookup by region, realm, and name
 - Display Guild information such as realm, region and world ranking.
+- Display the WoW token price in gold for US and EU regions.
 - Display recent raiders in the guild using the warcraftlogs GraphQL API.
 - Global recent searches tracking with Redis (last 24 hours)
 - Azure Cache for Redis (Tested, probably works on AWS or GCP aswell)
