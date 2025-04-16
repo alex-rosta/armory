@@ -27,6 +27,7 @@ func TestBlizzardAPIIntegration(t *testing.T) {
 
 	t.Run("GetAccessToken", testGetAccessToken(clientID, clientSecret))
 	t.Run("GetCharacterProfile", testGetCharacterProfile(clientID, clientSecret))
+	t.Run("GetTokenPrice", TestGetTokenPrice)
 }
 
 // testGetAccessToken tests the GetAccessToken function
