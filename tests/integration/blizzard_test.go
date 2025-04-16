@@ -27,6 +27,7 @@ func TestBlizzardAPIIntegration(t *testing.T) {
 
 	t.Run("GetAccessToken", testGetAccessToken(clientID, clientSecret))
 	t.Run("GetCharacterProfile", testGetCharacterProfile(clientID, clientSecret))
+	t.Run("GetTokenPrice", TestGetTokenPrice)
 }
 
 // testGetAccessToken tests the GetAccessToken function
@@ -90,6 +91,41 @@ func testGetCharacterProfile(clientID, clientSecret string) func(t *testing.T) {
 			t.Logf("Item Level: %.0f", itemLevel)
 		}
 	}
+}
+
+// TestGetTokenPrice tests the GetTokenPrice function
+func TestGetTokenPrice(t *testing.T) {
+	// Load .env file if it exists
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Warning: Error loading .env file, continuing without it. Ignore this if running as container.")
+	}
+	// Get Blizzard API credentials from environment variables
+	clientID := os.Getenv("CLIENT_ID")
+	clientSecret := os.Getenv("CLIENT_SECRET")
+
+	if clientID == "" || clientSecret == "" {
+		t.Fatal("CLIENT_ID and CLIENT_SECRET environment variables must be set")
+	}
+
+	// Create a new Blizzard API client
+	client := api.NewTokenClient(clientID, clientSecret)
+
+	// Get an access token
+	token, err := client.GetAccessToken()
+	if err != nil {
+		t.Fatalf("Failed to get access token: %v", err)
+	}
+
+	region := "eu"
+
+	// Get token price
+	price, err := client.GetTokenPrice(token, region)
+	if err != nil {
+		t.Fatalf("Failed to get token price: %v", err)
+	}
+
+	t.Logf("Token price in %s: %.0f", region, price)
 }
 
 // TestBlizzardAPIErrorHandling tests error handling in the Blizzard API client
