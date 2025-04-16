@@ -25,6 +25,7 @@ func main() {
 	// Create API clients
 	blizzardClient := api.NewBlizzardClient(cfg.ClientID, cfg.ClientSecret)
 	warcraftlogsClient := api.NewWarcraftlogsClient(cfg.WarcraftlogsAPIToken)
+	tokenClient := api.NewTokenClient(cfg.ClientID, cfg.ClientSecret)
 
 	// Create Redis client
 	redisClient, err := redis.NewClient(&cfg.Redis)
@@ -46,12 +47,14 @@ func main() {
 	characterHandler := handlers.NewCharacterHandler(baseHandler, blizzardClient)
 	guildHandler := handlers.NewGuildHandler(baseHandler, warcraftlogsClient)
 	recentSearchesHandler := handlers.NewRecentSearchesHandler(baseHandler)
+	tokenHandler := handlers.NewTokenHandler(baseHandler, tokenClient)
 
 	// Collect all handlers
 	appHandlers := []interfaces.Handler{
 		characterHandler,
 		guildHandler,
 		recentSearchesHandler,
+		tokenHandler,
 	}
 
 	// Create router
