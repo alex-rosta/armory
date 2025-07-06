@@ -1,6 +1,6 @@
 # WoW Armory
 Deployed on https://fly.io
-https://armory.rosta.dev
+## https://wow.rosta.dev
 
 
 A web application that allows users to look up World of Warcraft character and guild information using the Blizzard and Warcraftlogs API.
