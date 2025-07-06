@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -58,20 +59,48 @@ func Load() (*Config, error) {
 	templatesDir := "internal/templates"
 	assetsDir := "assets"
 
-	// Get Redis configuration from environment variables or use defaults
+	// Get Redis configuration - handle both REDIS_URL and individual env vars
 	redisAddr := os.Getenv("REDIS_ADDR")
-	if redisAddr == "" {
-		redisAddr = "localhost:6379" // Default Redis address
-	}
-
 	redisPassword := strings.Trim(os.Getenv("REDIS_PASSWORD"), "'")
+	redisDB := 0
 
-	redisDBStr := os.Getenv("REDIS_DB")
-	redisDB := 0 // Default Redis DB
-	if redisDBStr != "" {
-		redisDBInt, err := strconv.Atoi(redisDBStr)
-		if err == nil {
-			redisDB = redisDBInt
+	// Check if REDIS_URL is provided (fly.io format)
+	if redisURL := os.Getenv("REDIS_URL"); redisURL != "" {
+		// Parse the Redis URL
+		u, err := url.Parse(redisURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse REDIS_URL: %w", err)
+		}
+
+		// Extract host and port
+		redisAddr = u.Host
+
+		// Extract password
+		if u.User != nil {
+			if pwd, ok := u.User.Password(); ok {
+				redisPassword = pwd
+			}
+		}
+
+		// Extract database number from path
+		if u.Path != "" && u.Path != "/" {
+			dbStr := strings.TrimPrefix(u.Path, "/")
+			if dbInt, err := strconv.Atoi(dbStr); err == nil {
+				redisDB = dbInt
+			}
+		}
+	} else {
+		// Use individual environment variables (backward compatibility)
+		if redisAddr == "" {
+			redisAddr = "localhost:6379" // Default Redis address
+		}
+
+		redisDBStr := os.Getenv("REDIS_DB")
+		if redisDBStr != "" {
+			redisDBInt, err := strconv.Atoi(redisDBStr)
+			if err == nil {
+				redisDB = redisDBInt
+			}
 		}
 	}
 
