@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"time"
 	"wowarmory/internal/config"
@@ -56,14 +56,12 @@ func (h *BaseHandler) RenderError(w http.ResponseWriter, activeTab, url string) 
 	return h.RenderWithLayout(w, "error", layoutData)
 }
 
-// RecordSearch records a search in Redis
-func (h *BaseHandler) RecordSearch(r *http.Request, searchType string, region, realm, name string) error {
+// RecordSearch records a search in Redis; failures are logged and never fail the request
+func (h *BaseHandler) RecordSearch(r *http.Request, searchType string, region, realm, name string) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	if err := h.redisClient.RecordSearch(ctx, searchType, region, realm, name); err != nil {
-		// Log the error but don't fail the request
-		fmt.Printf("Error recording search: %v\n", err)
+		log.Printf("error recording search: %v", err)
 	}
-	return nil
 }

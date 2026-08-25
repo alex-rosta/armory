@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"wowarmory/internal/interfaces"
 	"wowarmory/internal/models"
@@ -45,37 +47,31 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 
 	// If all parameters are provided, display character data
 	if region != "" && realm != "" && character != "" {
-		// Get access token
 		accessToken, err := h.blizzardClient.GetAccessToken()
 		if err != nil {
-			http.Error(w, "Error getting access token: "+err.Error(), http.StatusInternalServerError)
+			log.Printf("error getting access token: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		// Get character profile
 		profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
 		if err != nil {
-			// Execute error template with master layout
-			url := fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character)
+			log.Printf("error getting character profile: %v", err)
+			url := blizzardArmoryURL(region, realm, character)
 			if err := h.RenderError(w, "character", url); err != nil {
-				http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
 			}
-			fmt.Printf("Error getting character profile: %v\n", err)
 			return
 		}
 
-		// Create character data from profile data
 		characterData, err := models.NewCharacterData(profileData, region)
 		if err != nil {
-			http.Error(w, "Error processing character data: "+err.Error(), http.StatusInternalServerError)
+			log.Printf("error processing character data: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		// Record the successful search in Redis
-		if err := h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character); err != nil {
-			// Error is already logged in RecordSearch
-			// Continue with the request
-		}
+		h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character)
 
 		// Combine character data with layout data
 		layoutData := map[string]interface{}{
@@ -101,7 +97,8 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 
 		// Execute character template with master layout
 		if err := h.RenderWithLayout(w, "character", layoutData); err != nil {
-			http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+			log.Printf("error executing template: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -112,56 +109,55 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := h.RenderWithLayout(w, "form", layoutData); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error executing template: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
 
 // GetCharacterTemplate handles the htmx request for the character template
 func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.Request) {
-	// Get query parameters
 	region := strings.ToLower(r.URL.Query().Get("region"))
 	realm := strings.ToLower(r.URL.Query().Get("realm"))
 	character := strings.ToLower(r.URL.Query().Get("character"))
 
-	// Check if all required parameters are provided
 	if region == "" || realm == "" || character == "" {
 		http.Error(w, "Missing required parameters", http.StatusBadRequest)
 		return
 	}
 
-	// Get access token
 	accessToken, err := h.blizzardClient.GetAccessToken()
 	if err != nil {
-		http.Error(w, "Error getting access token: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error getting access token: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	// Get character profile
 	profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
 	if err != nil {
-		url := fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s", region, realm, character)
-		h.RenderTemplate(w, "error.html", map[string]string{"url": url})
-		fmt.Printf("Error getting character profile: %v\n", err)
+		log.Printf("error getting character profile: %v", err)
 		w.WriteHeader(http.StatusNotFound)
+		if err := h.RenderTemplate(w, "error", map[string]string{"url": blizzardArmoryURL(region, realm, character)}); err != nil {
+			log.Printf("error executing template: %v", err)
+		}
 		return
 	}
 
-	// Create character data from profile data
 	data, err := models.NewCharacterData(profileData, region)
 	if err != nil {
-		http.Error(w, "Error processing character data: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error processing character data: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	// Record the successful search in Redis
-	if err := h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character); err != nil {
-		// Error is already logged in RecordSearch
-		// Continue with the request
-	}
+	h.RecordSearch(r, string(interfaces.CharacterSearchType), region, realm, character)
 
-	// Execute only the character template
 	if err := h.RenderTemplate(w, "character", data); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("error executing template: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
+}
+
+func blizzardArmoryURL(region, realm, character string) string {
+	return fmt.Sprintf("https://worldofwarcraft.blizzard.com/en-gb/character/%s/%s/%s",
+		url.PathEscape(region), url.PathEscape(realm), url.PathEscape(character))
 }

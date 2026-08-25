@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 	"wowarmory/internal/interfaces"
 )
 
@@ -27,7 +28,7 @@ func NewTokenClient(clientID, clientSecret string) *TokenClient {
 	return &TokenClient{
 		clientID:     clientID,
 		clientSecret: clientSecret,
-		httpClient:   &http.Client{},
+		httpClient:   &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
@@ -76,6 +77,9 @@ func (c *TokenClient) GetAccessToken() (string, error) {
 func (c *TokenClient) GetTokenPrice(accessToken, region string) (float64, error) {
 	if accessToken == "" {
 		return 0, fmt.Errorf("missing access token")
+	}
+	if !ValidRegion(region) {
+		return 0, fmt.Errorf("invalid region: %q", region)
 	}
 
 	url := fmt.Sprintf("https://%s.api.blizzard.com/data/wow/token/index?namespace=dynamic-%s&locale=en_US", region, region)

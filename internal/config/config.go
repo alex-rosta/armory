@@ -26,6 +26,7 @@ type RedisConfig struct {
 	Addr     string
 	Password string
 	DB       int
+	UseTLS   bool
 }
 
 // Load loads the configuration from environment variables
@@ -63,6 +64,7 @@ func Load() (*Config, error) {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPassword := strings.Trim(os.Getenv("REDIS_PASSWORD"), "'")
 	redisDB := 0
+	redisTLS := os.Getenv("REDIS_CLOUD") == "true"
 
 	// Check if REDIS_URL is provided (fly.io format)
 	if redisURL := os.Getenv("REDIS_URL"); redisURL != "" {
@@ -74,6 +76,10 @@ func Load() (*Config, error) {
 
 		// Extract host and port
 		redisAddr = u.Host
+
+		if u.Scheme == "rediss" {
+			redisTLS = true
+		}
 
 		// Extract password
 		if u.User != nil {
@@ -115,6 +121,7 @@ func Load() (*Config, error) {
 			Addr:     redisAddr,
 			Password: redisPassword,
 			DB:       redisDB,
+			UseTLS:   redisTLS,
 		},
 	}, nil
 }
