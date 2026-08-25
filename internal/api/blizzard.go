@@ -5,10 +5,26 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
+	"time"
 	"wowarmory/internal/interfaces"
 )
+
+// validRegions is the allowlist of Blizzard API regions; user-supplied region
+// values are used to build API hostnames, so they must be validated.
+var validRegions = map[string]bool{
+	"us": true,
+	"eu": true,
+	"kr": true,
+	"tw": true,
+}
+
+// ValidRegion reports whether region is an allowed Blizzard API region
+func ValidRegion(region string) bool {
+	return validRegions[region]
+}
 
 // BlizzardClient is a client for the Blizzard API
 type BlizzardClient struct {
@@ -30,7 +46,7 @@ func NewBlizzardClient(clientID, clientSecret string) *BlizzardClient {
 	return &BlizzardClient{
 		clientID:     clientID,
 		clientSecret: clientSecret,
-		httpClient:   &http.Client{},
+		httpClient:   &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
@@ -84,12 +100,18 @@ func (c *BlizzardClient) GetCharacterProfile(accessToken, region, realm, charact
 	if region == "" || realm == "" || character == "" {
 		return nil, fmt.Errorf("missing region, realm, or character")
 	}
+	if !ValidRegion(region) {
+		return nil, fmt.Errorf("invalid region: %q", region)
+	}
 
-	// Define the endpoints to fetch data from
+	base := fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s",
+		region, url.PathEscape(realm), url.PathEscape(character))
+	query := fmt.Sprintf("?namespace=profile-%s&locale=en_US", region)
+
 	endpoints := []string{
-		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
-		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/character-media?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
-		fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s/statistics?namespace=profile-%s&locale=en_US&access_token=%s", region, realm, character, region, accessToken),
+		base + query,
+		base + "/character-media" + query,
+		base + "/statistics" + query,
 	}
 
 	// Create a channel to receive responses from goroutines
@@ -99,11 +121,9 @@ func (c *BlizzardClient) GetCharacterProfile(accessToken, region, realm, charact
 	}
 	ch := make(chan apiResponse, len(endpoints))
 
-	// Create a wait group to wait for all goroutines to finish
 	var wg sync.WaitGroup
 	wg.Add(len(endpoints))
 
-	// Fetch data from each endpoint concurrently
 	for _, url := range endpoints {
 		go func(url string) {
 			defer wg.Done()
@@ -112,7 +132,6 @@ func (c *BlizzardClient) GetCharacterProfile(accessToken, region, realm, charact
 		}(url)
 	}
 
-	// Wait for all goroutines to finish and close the channel
 	go func() {
 		wg.Wait()
 		close(ch)

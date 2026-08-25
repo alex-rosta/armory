@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 	"wowarmory/internal/config"
 	"wowarmory/internal/interfaces"
@@ -14,13 +13,11 @@ import (
 )
 
 const (
-	// RecentSearchesKey is the key for the sorted set of recent searches
+	// RecentSearchesKey is the sorted set holding recent search keys
 	RecentSearchesKey = "recent_searches"
 
-	// MaxRecentSearches is the maximum number of recent searches to keep
 	MaxRecentSearches = 50
 
-	// SearchExpirationHours is the number of hours to keep searches
 	SearchExpirationHours = 24
 )
 
@@ -44,20 +41,19 @@ type SearchEntry struct {
 // NewClient creates a new Redis client
 func NewClient(cfg *config.RedisConfig) (*Client, error) {
 	var tlsConfig *tls.Config
-
-	if os.Getenv("REDIS_CLOUD") == "true" {
+	if cfg.UseTLS {
 		tlsConfig = &tls.Config{MinVersion: tls.VersionTLS12}
 	}
+
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.Addr,
-		Password: cfg.Password,
-		DB:       cfg.DB,
-		// TLS for cloud redis
+		Addr:      cfg.Addr,
+		Password:  cfg.Password,
+		DB:        cfg.DB,
 		TLSConfig: tlsConfig,
 	})
 
-	// Test the connection
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
 	}
@@ -72,85 +68,69 @@ func (c *Client) Close() error {
 
 // RecordSearch records a search in Redis
 func (c *Client) RecordSearch(ctx context.Context, searchType, region, realm, name string) error {
-	// Create a search entry
+	now := time.Now()
 	entry := SearchEntry{
 		Type:      searchType,
 		Name:      name,
 		Realm:     realm,
 		Region:    region,
-		Timestamp: time.Now(),
+		Timestamp: now,
 	}
 
-	// Serialize the entry to JSON
 	entryJSON, err := json.Marshal(entry)
 	if err != nil {
 		return fmt.Errorf("failed to marshal search entry: %w", err)
 	}
 
-	// Add the entry to the sorted set with the current timestamp as the score
-	score := float64(time.Now().Unix())
 	key := fmt.Sprintf("%s:%s:%s:%s", searchType, region, realm, name)
 
-	// Use a pipeline to execute multiple commands atomically
 	pipe := c.rdb.Pipeline()
-
-	// Add to sorted set
 	pipe.ZAdd(ctx, RecentSearchesKey, redis.Z{
-		Score:  score,
+		Score:  float64(now.Unix()),
 		Member: key,
 	})
-
-	// Store the JSON data
 	pipe.Set(ctx, key, entryJSON, time.Hour*SearchExpirationHours)
-
-	// Trim the sorted set to keep only the most recent searches
+	// Keep only the most recent searches
 	pipe.ZRemRangeByRank(ctx, RecentSearchesKey, 0, -MaxRecentSearches-1)
-
-	// Expire sorted set on the most recent search entry
 	pipe.Expire(ctx, RecentSearchesKey, time.Hour*SearchExpirationHours)
 
-	// Execute the pipeline
-	_, err = pipe.Exec(ctx)
-	if err != nil {
+	if _, err := pipe.Exec(ctx); err != nil {
 		return fmt.Errorf("failed to record search: %w", err)
 	}
 
 	return nil
 }
 
-// GetRecentSearches gets the most recent character searches
+// GetRecentSearches gets the most recent searches, newest first
 func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntry, error) {
-	// Get the most recent searches from the sorted set (highest scores first)
 	keys, err := c.rdb.ZRevRange(ctx, RecentSearchesKey, 0, MaxRecentSearches-1).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get recent searches: %w", err)
 	}
 
-	// If there are no searches, return an empty slice
 	if len(keys) == 0 {
 		return []interfaces.SearchEntry{}, nil
 	}
 
-	// Get the JSON data for each key
 	pipe := c.rdb.Pipeline()
 	cmds := make([]*redis.StringCmd, len(keys))
-
 	for i, key := range keys {
 		cmds[i] = pipe.Get(ctx, key)
 	}
 
-	_, err = pipe.Exec(ctx)
-	if err != nil {
+	// Exec returns redis.Nil if any key has expired; that is handled per-command below
+	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
 		return nil, fmt.Errorf("failed to get search entries: %w", err)
 	}
 
-	// Parse the JSON data into search entries
 	entries := make([]interfaces.SearchEntry, 0, len(keys))
+	var stale []interface{}
 
 	for i, cmd := range cmds {
-		// Skip entries that no longer exist (may have expired)
 		val, err := cmd.Result()
 		if err == redis.Nil {
+			// Entry expired; remove its stale sorted set member
+			stale = append(stale, keys[i])
 			continue
 		}
 		if err != nil {
@@ -162,25 +142,19 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntr
 			return nil, fmt.Errorf("failed to unmarshal search entry: %w", err)
 		}
 
-		// Convert internal SearchEntry to interfaces.SearchEntry
-		interfaceEntry := interfaces.SearchEntry{
+		entries = append(entries, interfaces.SearchEntry{
 			Type:      entry.Type,
 			Name:      entry.Name,
 			Realm:     entry.Realm,
 			Region:    entry.Region,
 			Timestamp: entry.Timestamp.Format(time.RFC822),
-		}
-		// Delete keys from sorted set and completely if expired
-		if time.Since(entry.Timestamp) > time.Hour*SearchExpirationHours {
-			if err := c.rdb.Del(ctx, keys[i]).Err(); c.rdb.ZRem(ctx, RecentSearchesKey, keys[i]).Err() != nil {
-				return nil, fmt.Errorf("failed to delete expired search entry: %w", err)
-			}
-			continue
-		}
+		})
+	}
 
-		entries = append(entries, interfaceEntry)
+	if len(stale) > 0 {
+		// Best-effort cleanup; entries are still valid if this fails
+		_ = c.rdb.ZRem(ctx, RecentSearchesKey, stale...).Err()
 	}
 
 	return entries, nil
-
 }

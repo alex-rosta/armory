@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 	"wowarmory/internal/interfaces"
@@ -41,29 +42,29 @@ func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *
 	}
 
 	if err := h.RenderWithLayout(w, "recent_searches_container", layoutData); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error executing template: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
 
 // GetRecentSearches handles the htmx request for recent searches data
 func (h *RecentSearchesHandler) GetRecentSearches(w http.ResponseWriter, r *http.Request) {
-	// Get recent searches from Redis
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	searches, err := h.redisClient.GetRecentSearches(ctx)
 	if err != nil {
-		http.Error(w, "Error getting recent searches: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error getting recent searches: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	// Prepare data for the template
 	data := map[string]interface{}{
 		"Searches": searches,
 	}
 
-	// Execute the recent searches template
 	if err := h.RenderTemplate(w, "recent_searches", data); err != nil {
-		http.Error(w, "Error executing template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("error executing template: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }

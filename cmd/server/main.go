@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"wowarmory/internal/api"
 	"wowarmory/internal/config"
@@ -63,13 +64,23 @@ func main() {
 
 	// Wrap router with middleware
 	handler := middleware.RecoveryMiddleware(
-		middleware.LoggingMiddleware(r),
+		middleware.SecurityHeadersMiddleware(
+			middleware.LoggingMiddleware(r),
+		),
 	)
 
-	// Start server
 	addr := fmt.Sprintf(":%d", cfg.Port)
-	fmt.Printf("Listening on http://localhost%s\n", addr)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+
+	log.Printf("Listening on http://localhost%s", addr)
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
