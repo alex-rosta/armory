@@ -49,7 +49,12 @@ func staticHandler(dir string) http.Handler {
 			http.NotFound(w, req)
 			return
 		}
-		w.Header().Set("Cache-Control", "public, max-age=3600")
+		// Our own CSS/JS change with deploys and have no content hash in the URL, so always revalidate
+		if strings.HasPrefix(req.URL.Path, "media/") || strings.HasPrefix(req.URL.Path, "vendor/") {
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+		} else {
+			w.Header().Set("Cache-Control", "no-cache")
+		}
 		fileServer.ServeHTTP(w, req)
 	})
 }

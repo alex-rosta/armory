@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,6 +21,9 @@ const (
 	tokenExpiryMargin = time.Minute
 )
 
+// ErrNotFound is returned when an upstream API responds with 404
+var ErrNotFound = errors.New("not found")
+
 // newHTTPClient returns an HTTP client for upstream APIs
 func newHTTPClient() *http.Client {
 	return &http.Client{Timeout: 10 * time.Second}
@@ -33,6 +37,9 @@ func getJSON(client *http.Client, req *http.Request, v interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return ErrNotFound
+	}
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
 		return fmt.Errorf("unexpected response: %s (status code: %d)", body, resp.StatusCode)

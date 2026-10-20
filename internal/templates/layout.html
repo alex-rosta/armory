@@ -1,0 +1,62 @@
+{{ define "header" }}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ if .PageTitle }}{{ .PageTitle }} · {{ end }}WoW Armory</title>
+    <meta name="description" content="Look up World of Warcraft characters and guilds, and check the current WoW Token price." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="stylesheet" href="/assets/vendor/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <link rel="icon" href="/assets/media/favicon.ico" type="image/x-icon" />
+    <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/app.js" defer></script>
+  </head>
+  <body class="page-bg">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container-wow flex items-center justify-between gap-4">
+        <a href="/" class="brand">
+          <i class="bi bi-shield-shaded" aria-hidden="true"></i>
+          <span>WoW Armory</span>
+        </a>
+        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode" aria-pressed="false">
+          <i class="bi bi-moon-stars-fill dark:hidden" aria-hidden="true"></i>
+          <i class="bi bi-sun-fill hidden dark:inline" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="container-wow nav-wow" aria-label="Main">
+        <a href="/" class="nav-link{{ if eq .ActiveTab "character" }} nav-link-active{{ end }}" aria-current="{{ if eq .ActiveTab "character" }}page{{ else }}false{{ end }}">
+          <i class="bi bi-person-fill" aria-hidden="true"></i> Character
+        </a>
+        <a href="/guild-lookup" class="nav-link{{ if eq .ActiveTab "guild" }} nav-link-active{{ end }}" aria-current="{{ if eq .ActiveTab "guild" }}page{{ else }}false{{ end }}">
+          <i class="bi bi-people-fill" aria-hidden="true"></i> Guild
+        </a>
+        <a href="/token" class="nav-link{{ if eq .ActiveTab "token" }} nav-link-active{{ end }}" aria-current="{{ if eq .ActiveTab "token" }}page{{ else }}false{{ end }}">
+          <i class="bi bi-coin" aria-hidden="true"></i> Token
+        </a>
+        <a href="/recent-searches" class="nav-link{{ if eq .ActiveTab "recent" }} nav-link-active{{ end }}" aria-current="{{ if eq .ActiveTab "recent" }}page{{ else }}false{{ end }}">
+          <i class="bi bi-clock-history" aria-hidden="true"></i> Recent
+        </a>
+      </nav>
+    </header>
+
+    <main id="main" class="container-wow flex-1 py-6 sm:py-8">
+{{ end }}
+
+{{ define "footer" }}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container-wow flex flex-col items-center justify-between gap-2 sm:flex-row">
+        <p>Not affiliated with Blizzard Entertainment. Data from the Blizzard and Warcraft Logs APIs.</p>
+        <a href="https://github.com/alex-rosta/armory" target="_blank" rel="noopener noreferrer" class="footer-link">
+          <i class="bi bi-github" aria-hidden="true"></i> GitHub
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>
+{{ end }}

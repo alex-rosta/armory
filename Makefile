@@ -34,7 +34,7 @@ dev: build
 	./$(BINARY_NAME)
 
 css: 
-	npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/styles.css
+	npm run build:css
 
 # Build Docker image
 docker-build:

@@ -1,0 +1,95 @@
+{{ define "search_form" }}
+<form action="{{ .Action }}" method="get" class="surface p-5 sm:p-6" data-search-form>
+  {{ if .Error }}
+    <div role="alert" class="alert alert-error mb-4">
+      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+      <p>{{ .Error }}</p>
+    </div>
+  {{ end }}
+
+  <div class="grid gap-4 sm:grid-cols-[6.5rem_1fr_1fr]">
+    <div>
+      <label for="region" class="field-label">Region</label>
+      <select id="region" name="region" class="field-input" data-region>
+        <option value="eu"{{ if eq .Region "eu" }} selected{{ end }}>EU</option>
+        <option value="us"{{ if eq .Region "us" }} selected{{ end }}>US</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="realm" class="field-label">Realm</label>
+      <input
+        type="text"
+        id="realm"
+        name="realm"
+        value="{{ .Realm }}"
+        placeholder="e.g. defias brotherhood"
+        class="field-input"
+        required
+        maxlength="64"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+      />
+    </div>
+
+    <div>
+      <label for="name" class="field-label">{{ .NameLabel }}</label>
+      <input
+        type="text"
+        id="name"
+        name="{{ .NameParam }}"
+        value="{{ .Name }}"
+        placeholder="{{ .NamePlaceholder }}"
+        class="field-input"
+        required
+        maxlength="64"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+
+  <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p class="text-sm text-muted">Realms with spaces or apostrophes work as typed, e.g. <span class="font-medium">Quel'Thalas</span>.</p>
+    <button type="submit" class="btn btn-primary w-full sm:w-auto" data-submit>
+      <i class="bi bi-search" aria-hidden="true" data-submit-icon></i>
+      <span data-submit-label>{{ .SubmitLabel }}</span>
+    </button>
+  </div>
+</form>
+{{ end }}
+
+{{ define "not_found" }}
+<section class="surface mt-6 p-6 text-center sm:p-10" aria-live="polite">
+  <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
+    <i class="bi bi-search" aria-hidden="true"></i>
+  </div>
+  <h2 class="text-xl font-semibold">We couldn't find a match</h2>
+  <ul class="mx-auto mt-4 max-w-md space-y-2 text-left text-sm text-muted">
+    <li class="flex gap-2"><i class="bi bi-check2 text-primary-500" aria-hidden="true"></i><span>Check the spelling of the realm and the name.</span></li>
+    <li class="flex gap-2"><i class="bi bi-check2 text-primary-500" aria-hidden="true"></i><span>Make sure the region is right.</span></li>
+    {{ if eq .Form.NameParam "guild" }}
+      <li class="flex gap-2"><i class="bi bi-check2 text-primary-500" aria-hidden="true"></i><span>Guild data comes from Warcraft Logs, so the guild needs to have uploaded logs.</span></li>
+    {{ else }}
+      <li class="flex gap-2"><i class="bi bi-check2 text-primary-500" aria-hidden="true"></i><span>Characters that haven't logged in for a long time may not be available.</span></li>
+    {{ end }}
+  </ul>
+  <a href="{{ .ExternalURL }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost mt-6">
+    <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+    {{ if eq .Form.NameParam "guild" }}Check on Warcraft Logs{{ else }}Check on the Blizzard Armory{{ end }}
+  </a>
+</section>
+{{ end }}
+
+{{ define "unavailable" }}
+<section class="surface mt-6 p-6 text-center sm:p-10" aria-live="polite">
+  <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl text-red-600 dark:bg-red-500/15 dark:text-red-400">
+    <i class="bi bi-cloud-slash" aria-hidden="true"></i>
+  </div>
+  <h2 class="text-xl font-semibold">The data service isn't responding</h2>
+  <p class="mt-2 text-muted">Blizzard or Warcraft Logs may be having a hiccup. Your search is fine, so please try again in a moment.</p>
+  <a href="" class="btn btn-ghost mt-6"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Try again</a>
+</section>
+{{ end }}

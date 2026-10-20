@@ -8,11 +8,7 @@ import (
 )
 
 const contentSecurityPolicy = "default-src 'self'; " +
-	"script-src 'self' 'unsafe-inline' https://unpkg.com; " +
-	"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-	"font-src https://cdn.jsdelivr.net; " +
-	"img-src 'self' data: https://render.worldofwarcraft.com; " +
-	"connect-src 'self'; " +
+	"img-src 'self' https://render.worldofwarcraft.com; " +
 	"object-src 'none'; " +
 	"base-uri 'self'; " +
 	"form-action 'self'; " +
