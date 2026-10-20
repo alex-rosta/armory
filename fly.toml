@@ -21,3 +21,4 @@ primary_region = 'arn'
 
 [env]
   PORT = "3000"
+  CLIENT_IP_HEADER = "Fly-Client-IP"

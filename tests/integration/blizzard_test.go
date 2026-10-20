@@ -22,7 +22,7 @@ func TestBlizzardAPIIntegration(t *testing.T) {
 	clientSecret := os.Getenv("CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		t.Fatal("CLIENT_ID and CLIENT_SECRET environment variables must be set")
+		t.Skip("CLIENT_ID and CLIENT_SECRET environment variables must be set")
 	}
 
 	t.Run("GetAccessToken", testGetAccessToken(clientID, clientSecret))
@@ -47,7 +47,7 @@ func testGetAccessToken(clientID, clientSecret string) func(t *testing.T) {
 			t.Fatal("Access token is empty")
 		}
 
-		t.Logf("Successfully obtained access token: %s...", token[:10])
+		t.Log("Successfully obtained access token")
 	}
 }
 
@@ -105,7 +105,7 @@ func TestGetTokenPrice(t *testing.T) {
 	clientSecret := os.Getenv("CLIENT_SECRET")
 
 	if clientID == "" || clientSecret == "" {
-		t.Fatal("CLIENT_ID and CLIENT_SECRET environment variables must be set")
+		t.Skip("CLIENT_ID and CLIENT_SECRET environment variables must be set")
 	}
 
 	// Create a new Blizzard API client

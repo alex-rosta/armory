@@ -2,10 +2,10 @@ package router
 
 import (
 	"net/http"
+	"strings"
 
 	"wowarmory/internal/config"
 	"wowarmory/internal/interfaces"
-	"wowarmory/internal/middleware"
 )
 
 // Router handles HTTP routing for the application
@@ -33,13 +33,25 @@ func (r *Router) HandleFunc(pattern string, handler func(http.ResponseWriter, *h
 // SetupHandlers registers routes for all handlers
 func (r *Router) SetupHandlers(handlers []interfaces.Handler) {
 	// Set up static file server
-	fileServer := http.FileServer(http.Dir(r.config.AssetsDir))
-	r.mux.Handle("/assets/", http.StripPrefix("/assets/", middleware.ContentTypeMiddleware(fileServer)))
+	r.mux.Handle("/assets/", http.StripPrefix("/assets/", staticHandler(r.config.AssetsDir)))
 
 	// Register routes for each handler
 	for _, handler := range handlers {
 		handler.RegisterRoutes(r)
 	}
+}
+
+// staticHandler serves files from dir without directory listings
+func staticHandler(dir string) http.Handler {
+	fileServer := http.FileServer(http.Dir(dir))
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if strings.HasSuffix(req.URL.Path, "/") {
+			http.NotFound(w, req)
+			return
+		}
+		w.Header().Set("Cache-Control", "public, max-age=3600")
+		fileServer.ServeHTTP(w, req)
+	})
 }
 
 // ServeHTTP implements the http.Handler interface

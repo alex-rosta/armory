@@ -1,14 +1,16 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
-	"html/template"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 	"wowarmory/internal/config"
 	"wowarmory/internal/redis"
 	"wowarmory/internal/templates"
+	"wowarmory/internal/validation"
 )
 
 // BaseHandler contains common handler functionality
@@ -27,33 +29,39 @@ func NewBaseHandler(cfg *config.Config, redisClient *redis.Client, templateMgr *
 	}
 }
 
-// GetTemplates returns the template manager's templates
-func (h *BaseHandler) GetTemplates() *template.Template {
-	return h.templates.Get()
+// RenderTemplateStatus renders a template with the given status code.
+// Output is buffered so a template failure never produces a partial page.
+func (h *BaseHandler) RenderTemplateStatus(w http.ResponseWriter, status int, templateName string, data interface{}) error {
+	var buf bytes.Buffer
+	if err := h.templates.Get().ExecuteTemplate(&buf, templateName, data); err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	_, err := buf.WriteTo(w)
+	return err
 }
 
 // RenderTemplate renders a template with the given data
 func (h *BaseHandler) RenderTemplate(w http.ResponseWriter, templateName string, data interface{}) error {
-	w.Header().Set("Content-Type", "text/html")
-	return h.templates.Get().ExecuteTemplate(w, templateName, data)
+	return h.RenderTemplateStatus(w, http.StatusOK, templateName, data)
 }
 
 // RenderWithLayout renders a content template within the master layout
 func (h *BaseHandler) RenderWithLayout(w http.ResponseWriter, contentTemplate string, data map[string]interface{}) error {
-	// Add the content template to the data
 	data["ContentTemplate"] = contentTemplate
 	return h.RenderTemplate(w, "master_layout.html", data)
 }
 
-// RenderError renders the error template
+// RenderError renders the not-found error page within the master layout
 func (h *BaseHandler) RenderError(w http.ResponseWriter, activeTab, url string) error {
 	layoutData := map[string]interface{}{
-		"PageTitle": "Error",
-		"ActiveTab": activeTab,
-		"url":       url,
+		"PageTitle":       "Error",
+		"ActiveTab":       activeTab,
+		"url":             url,
+		"ContentTemplate": "error",
 	}
-	w.WriteHeader(http.StatusNotFound)
-	return h.RenderWithLayout(w, "error", layoutData)
+	return h.RenderTemplateStatus(w, http.StatusNotFound, "master_layout.html", layoutData)
 }
 
 // RecordSearch records a search in Redis; failures are logged and never fail the request
@@ -64,4 +72,15 @@ func (h *BaseHandler) RecordSearch(r *http.Request, searchType string, region, r
 	if err := h.redisClient.RecordSearch(ctx, searchType, region, realm, name); err != nil {
 		log.Printf("error recording search: %v", err)
 	}
+}
+
+// lookupParams reads the lowercased region, realm and entity name query parameters
+func lookupParams(r *http.Request, nameParam string) (region, realm, name string) {
+	q := r.URL.Query()
+	return strings.ToLower(q.Get("region")), strings.ToLower(q.Get("realm")), strings.ToLower(q.Get(nameParam))
+}
+
+// validLookup reports whether the lookup parameters are safe to send upstream and store
+func validLookup(region, realm, name string) bool {
+	return validation.Region(region) && validation.Name(realm) && validation.Name(name)
 }

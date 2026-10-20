@@ -1,79 +1,36 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"strings"
-	"time"
 	"wowarmory/internal/interfaces"
 )
 
+// TokenClient is a client for the Blizzard WoW Token API
 type TokenClient struct {
-	clientID     string
-	clientSecret string
-	httpClient   *http.Client
+	tokens     *tokenSource
+	httpClient *http.Client
+	// apiURLFormat is formatted with the region to build the API base URL
+	apiURLFormat string
 }
 
 var _ interfaces.TokenAPI = (*TokenClient)(nil)
 
-// GetClientName returns the name of the client
-func (c *TokenClient) GetClientName() string {
-	return "TokenAPI"
-}
-
 // NewTokenClient creates a new Token API client
 func NewTokenClient(clientID, clientSecret string) *TokenClient {
 	return &TokenClient{
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		httpClient:   &http.Client{Timeout: 10 * time.Second},
+		tokens:       newTokenSource(clientID, clientSecret),
+		httpClient:   newHTTPClient(),
+		apiURLFormat: "https://%s.api.blizzard.com",
 	}
 }
 
-// GetAccessToken gets an access token from the Token API
+// GetAccessToken gets an access token from the Blizzard API; tokens are cached until shortly before expiry
 func (c *TokenClient) GetAccessToken() (string, error) {
-	if c.clientID == "" || c.clientSecret == "" {
-		return "", fmt.Errorf("missing client ID or client secret")
-	}
-
-	url := "https://oauth.battle.net/oauth/token"
-	req, err := http.NewRequest("POST", url, strings.NewReader("grant_type=client_credentials"))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-	req.SetBasicAuth(c.clientID, c.clientSecret)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("failed to get access token: %s (status code: %d)", string(body), resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return "", fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	accessToken, ok := result["access_token"].(string)
-	if !ok {
-		return "", fmt.Errorf("unable to get access token from response")
-	}
-	return accessToken, nil
+	return c.tokens.Token()
 }
 
+// GetTokenPrice returns the WoW Token price in copper for a region
 func (c *TokenClient) GetTokenPrice(accessToken, region string) (float64, error) {
 	if accessToken == "" {
 		return 0, fmt.Errorf("missing access token")
@@ -82,37 +39,21 @@ func (c *TokenClient) GetTokenPrice(accessToken, region string) (float64, error)
 		return 0, fmt.Errorf("invalid region: %q", region)
 	}
 
-	url := fmt.Sprintf("https://%s.api.blizzard.com/data/wow/token/index?namespace=dynamic-%s&locale=en_US", region, region)
-	req, err := http.NewRequest("GET", url, nil)
+	endpoint := fmt.Sprintf(c.apiURLFormat+"/data/wow/token/index?namespace=dynamic-%s&locale=en_US", region, region)
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return 0, fmt.Errorf("failed to send request: %w", err)
+	var result struct {
+		Price *float64 `json:"price"`
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return 0, fmt.Errorf("failed to get token price: %s (status code: %d)", string(body), resp.StatusCode)
+	if err := getJSON(c.httpClient, req, &result); err != nil {
+		return 0, fmt.Errorf("failed to get token price: %w", err)
 	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return 0, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return 0, fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	price, ok := result["price"].(float64)
-	if !ok {
+	if result.Price == nil {
 		return 0, fmt.Errorf("unable to get token price from response")
 	}
-	return price, nil
+	return *result.Price, nil
 }

@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"wowarmory/internal/api"
@@ -62,10 +66,15 @@ func main() {
 	r := router.New(cfg)
 	r.SetupHandlers(appHandlers)
 
-	// Wrap router with middleware
+	// Wrap router with middleware; the first one listed is the outermost
+	limiter := middleware.NewRateLimiter(2, 20)
 	handler := middleware.RecoveryMiddleware(
 		middleware.SecurityHeadersMiddleware(
-			middleware.LoggingMiddleware(r),
+			middleware.LoggingMiddleware(cfg.ClientIPHeader)(
+				middleware.RateLimitMiddleware(limiter, cfg.ClientIPHeader)(
+					middleware.AllowReadOnlyMiddleware(r),
+				),
+			),
 		),
 	)
 
@@ -77,10 +86,26 @@ func main() {
 		ReadTimeout:       30 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       120 * time.Second,
+		MaxHeaderBytes:    16 << 10,
 	}
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	shutdownDone := make(chan struct{})
+	go func() {
+		defer close(shutdownDone)
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Printf("Graceful shutdown failed: %v", err)
+		}
+	}()
+
 	log.Printf("Listening on http://localhost%s", addr)
-	if err := server.ListenAndServe(); err != nil {
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+	<-shutdownDone
 }

@@ -13,11 +13,6 @@ type TokenHandler struct {
 
 var _ interfaces.Handler = (*TokenHandler)(nil)
 
-// GetName returns the name of the handler
-func (h *TokenHandler) GetName() string {
-	return "TokenHandler"
-}
-
 func NewTokenHandler(base *BaseHandler, tokenClient interfaces.TokenAPI) *TokenHandler {
 	return &TokenHandler{
 		BaseHandler: base,
