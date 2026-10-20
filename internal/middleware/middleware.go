@@ -8,7 +8,7 @@ import (
 )
 
 const contentSecurityPolicy = "default-src 'self'; " +
-	"img-src 'self' https://render.worldofwarcraft.com; " +
+	"img-src 'self' https://*.worldofwarcraft.com; " +
 	"object-src 'none'; " +
 	"base-uri 'self'; " +
 	"form-action 'self'; " +

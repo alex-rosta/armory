@@ -50,9 +50,12 @@ func staticHandler(dir string) http.Handler {
 			http.NotFound(w, req)
 			return
 		}
-		// Our own CSS/JS change with deploys and have no content hash in the URL, so always revalidate
+		// Versioned URLs (?v=<content hash>) can never go stale; unversioned CSS/JS must revalidate
 		cacheControl := "no-cache"
-		if strings.HasPrefix(req.URL.Path, "media/") || strings.HasPrefix(req.URL.Path, "vendor/") {
+		switch {
+		case req.URL.Query().Get("v") != "":
+			cacheControl = "public, max-age=31536000, immutable"
+		case strings.HasPrefix(req.URL.Path, "media/"), strings.HasPrefix(req.URL.Path, "vendor/"):
 			cacheControl = "public, max-age=86400"
 		}
 		fileServer.ServeHTTP(&cacheOnSuccess{ResponseWriter: w, value: cacheControl}, req)

@@ -42,6 +42,10 @@ func TestStaticHandler(t *testing.T) {
 		t.Errorf("vendor: code=%d cache=%q", rec.Code, rec.Header().Get("Cache-Control"))
 	}
 
+	if rec := get("/assets/css/styles.css?v=abc123"); rec.Code != 200 || rec.Header().Get("Cache-Control") != "public, max-age=31536000, immutable" {
+		t.Errorf("versioned: code=%d cache=%q", rec.Code, rec.Header().Get("Cache-Control"))
+	}
+
 	for _, path := range []string{"/assets/vendor/missing.css", "/assets/css/", "/assets/"} {
 		rec := get(path)
 		if rec.Code != 404 {

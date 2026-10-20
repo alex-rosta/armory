@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestTokenSourceCachesToken(t *testing.T) {
@@ -65,6 +66,32 @@ func TestTokenSourceErrors(t *testing.T) {
 	s.tokenURL = srv.URL
 	if _, err := s.Token(); err == nil {
 		t.Fatal("expected error for 401")
+	}
+}
+
+func TestTokenSourceBacksOffAfterFailure(t *testing.T) {
+	var calls int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&calls, 1)
+		http.Error(w, "down", http.StatusServiceUnavailable)
+	}))
+	defer srv.Close()
+
+	s := newTokenSource("id", "secret")
+	s.tokenURL = srv.URL
+	for i := 0; i < 5; i++ {
+		if _, err := s.Token(); err == nil {
+			t.Fatal("expected error")
+		}
+	}
+	if calls != 1 {
+		t.Fatalf("token endpoint called %d times during backoff, want 1", calls)
+	}
+
+	s.failedUntil = time.Now().Add(-time.Second)
+	_, _ = s.Token()
+	if calls != 2 {
+		t.Fatalf("token endpoint called %d times after backoff, want 2", calls)
 	}
 }
 

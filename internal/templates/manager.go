@@ -1,27 +1,52 @@
 package templates
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"html/template"
+	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"unicode"
 )
 
 // Manager handles the loading and access of HTML templates
 type Manager struct {
 	templates *template.Template
+	assetsDir string
+	assetURLs sync.Map
 }
 
-// NewManager creates a new template manager
-func NewManager(templatesDir string) (*Manager, error) {
+// NewManager creates a new template manager; assetsDir is used to version asset URLs
+func NewManager(templatesDir, assetsDir string) (*Manager, error) {
+	m := &Manager{assetsDir: assetsDir}
+
 	templatesPath := filepath.Join(templatesDir, "*.html")
-	tmpl, err := template.New("").Funcs(funcs).ParseGlob(templatesPath)
+	tmpl, err := template.New("").Funcs(funcs).Funcs(template.FuncMap{"asset": m.assetURL}).ParseGlob(templatesPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse templates: %w", err)
 	}
 
-	return &Manager{templates: tmpl}, nil
+	m.templates = tmpl
+	return m, nil
+}
+
+// assetURL returns the public URL of an asset with a content hash appended.
+// Edge caches and browsers key on the full URL, so a changed file is never served stale.
+func (m *Manager) assetURL(path string) string {
+	if cached, ok := m.assetURLs.Load(path); ok {
+		return cached.(string)
+	}
+
+	url := "/assets/" + path
+	if data, err := os.ReadFile(filepath.Join(m.assetsDir, filepath.FromSlash(path))); err == nil {
+		sum := sha256.Sum256(data)
+		url += "?v=" + hex.EncodeToString(sum[:])[:10]
+	}
+	m.assetURLs.Store(path, url)
+	return url
 }
 
 // Get returns the loaded templates

@@ -1,5 +1,5 @@
 # Use the official Golang image as the base image for building
-FROM golang:1.23.4-alpine AS build
+FROM golang:1.27-alpine AS build
 
 # Install necessary packages
 RUN apk add --no-cache git

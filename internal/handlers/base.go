@@ -99,10 +99,23 @@ func parseLookup(r *http.Request, nameParam string) Lookup {
 	}
 }
 
+// accentFolder mirrors how Blizzard builds realm slugs: apostrophes are dropped and accents are stripped
+var accentFolder = strings.NewReplacer(
+	"'", "", "\u2019", "",
+	"à", "a", "á", "a", "â", "a", "ã", "a", "ä", "a", "å", "a", "æ", "ae",
+	"ç", "c",
+	"è", "e", "é", "e", "ê", "e", "ë", "e",
+	"ì", "i", "í", "i", "î", "i", "ï", "i",
+	"ñ", "n",
+	"ò", "o", "ó", "o", "ô", "o", "õ", "o", "ö", "o", "ø", "o", "œ", "oe",
+	"ù", "u", "ú", "u", "û", "u", "ü", "u",
+	"ý", "y", "ÿ", "y",
+	"ß", "ss",
+)
+
 // normalizeRealm converts a typed realm name to its API slug, e.g. "Quel'Thalas" -> "quelthalas", "Defias Brotherhood" -> "defias-brotherhood"
 func normalizeRealm(s string) string {
-	s = strings.NewReplacer("'", "", "\u2019", "").Replace(strings.ToLower(s))
-	return strings.Join(strings.Fields(s), "-")
+	return strings.Join(strings.Fields(accentFolder.Replace(strings.ToLower(s))), "-")
 }
 
 // Empty reports whether no realm and no name were given, i.e. the user has not searched yet
