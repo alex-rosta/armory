@@ -45,18 +45,31 @@ func (r *Router) SetupHandlers(handlers []interfaces.Handler) {
 func staticHandler(dir string) http.Handler {
 	fileServer := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		if strings.HasSuffix(req.URL.Path, "/") {
+		// StripPrefix turns "/assets/" into "", which FileServer would serve as a directory listing
+		if req.URL.Path == "" || strings.HasSuffix(req.URL.Path, "/") {
 			http.NotFound(w, req)
 			return
 		}
 		// Our own CSS/JS change with deploys and have no content hash in the URL, so always revalidate
+		cacheControl := "no-cache"
 		if strings.HasPrefix(req.URL.Path, "media/") || strings.HasPrefix(req.URL.Path, "vendor/") {
-			w.Header().Set("Cache-Control", "public, max-age=86400")
-		} else {
-			w.Header().Set("Cache-Control", "no-cache")
+			cacheControl = "public, max-age=86400"
 		}
-		fileServer.ServeHTTP(w, req)
+		fileServer.ServeHTTP(&cacheOnSuccess{ResponseWriter: w, value: cacheControl}, req)
 	})
+}
+
+// cacheOnSuccess sets Cache-Control only on non-error responses, so a 404 is never cached
+type cacheOnSuccess struct {
+	http.ResponseWriter
+	value string
+}
+
+func (c *cacheOnSuccess) WriteHeader(status int) {
+	if status < 400 {
+		c.Header().Set("Cache-Control", c.value)
+	}
+	c.ResponseWriter.WriteHeader(status)
 }
 
 // ServeHTTP implements the http.Handler interface
