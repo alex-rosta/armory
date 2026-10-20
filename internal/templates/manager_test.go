@@ -1,6 +1,9 @@
 package templates
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestDisplay(t *testing.T) {
 	for in, want := range map[string]string{
@@ -32,8 +35,26 @@ func TestGold(t *testing.T) {
 	}
 }
 
+func TestAssetURLIsContentVersioned(t *testing.T) {
+	m, err := NewManager("../templates", "../../assets")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := m.assetURL("css/styles.css")
+	if !strings.HasPrefix(got, "/assets/css/styles.css?v=") || len(got) != len("/assets/css/styles.css?v=")+10 {
+		t.Fatalf("assetURL = %q", got)
+	}
+	if got != m.assetURL("css/styles.css") {
+		t.Fatal("assetURL must be stable between calls")
+	}
+	if missing := m.assetURL("css/nope.css"); missing != "/assets/css/nope.css" {
+		t.Fatalf("missing file should fall back to the plain URL, got %q", missing)
+	}
+}
+
 func TestNewManagerParsesAllTemplates(t *testing.T) {
-	m, err := NewManager("../templates")
+	m, err := NewManager("../templates", "../../assets")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -40,7 +40,7 @@ func main() {
 	defer redisClient.Close()
 
 	// Create template manager
-	templateMgr, err := templates.NewManager(cfg.TemplatesDir)
+	templateMgr, err := templates.NewManager(cfg.TemplatesDir, cfg.AssetsDir)
 	if err != nil {
 		log.Fatalf("Failed to create template manager: %v", err)
 	}

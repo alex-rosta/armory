@@ -19,6 +19,9 @@ const (
 
 	// tokenExpiryMargin refreshes the token slightly before it actually expires
 	tokenExpiryMargin = time.Minute
+
+	// tokenFailureBackoff is how long a failed token request is reused before trying again
+	tokenFailureBackoff = 5 * time.Second
 )
 
 // ErrNotFound is returned when an upstream API responds with 404
@@ -58,9 +61,11 @@ type tokenSource struct {
 	tokenURL     string
 	httpClient   *http.Client
 
-	mu     sync.Mutex
-	token  string
-	expiry time.Time
+	mu          sync.Mutex
+	token       string
+	expiry      time.Time
+	lastErr     error
+	failedUntil time.Time
 }
 
 func newTokenSource(clientID, clientSecret string) *tokenSource {
@@ -84,10 +89,28 @@ func (s *tokenSource) Token() (string, error) {
 	if s.token != "" && time.Now().Before(s.expiry) {
 		return s.token, nil
 	}
+	// After a failure, answer from the recorded error so queued requests don't each wait out a full timeout
+	if s.lastErr != nil && time.Now().Before(s.failedUntil) {
+		return "", s.lastErr
+	}
 
+	token, expiresIn, err := s.fetch()
+	if err != nil {
+		s.lastErr, s.failedUntil = err, time.Now().Add(tokenFailureBackoff)
+		return "", err
+	}
+	s.lastErr = nil
+
+	s.token = token
+	s.expiry = time.Now().Add(expiresIn - tokenExpiryMargin)
+	return s.token, nil
+}
+
+// fetch requests a new token; callers hold s.mu
+func (s *tokenSource) fetch() (string, time.Duration, error) {
 	req, err := http.NewRequest(http.MethodPost, s.tokenURL, strings.NewReader("grant_type=client_credentials"))
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
+		return "", 0, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.SetBasicAuth(s.clientID, s.clientSecret)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -97,13 +120,10 @@ func (s *tokenSource) Token() (string, error) {
 		ExpiresIn   int    `json:"expires_in"`
 	}
 	if err := getJSON(s.httpClient, req, &result); err != nil {
-		return "", fmt.Errorf("failed to get access token: %w", err)
+		return "", 0, fmt.Errorf("failed to get access token: %w", err)
 	}
 	if result.AccessToken == "" {
-		return "", fmt.Errorf("unable to get access token from response")
+		return "", 0, fmt.Errorf("unable to get access token from response")
 	}
-
-	s.token = result.AccessToken
-	s.expiry = time.Now().Add(time.Duration(result.ExpiresIn)*time.Second - tokenExpiryMargin)
-	return s.token, nil
+	return result.AccessToken, time.Duration(result.ExpiresIn) * time.Second, nil
 }

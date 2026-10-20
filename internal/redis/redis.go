@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 	"wowarmory/internal/config"
 	"wowarmory/internal/interfaces"
@@ -139,7 +140,8 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntr
 
 		var entry SearchEntry
 		if err := json.Unmarshal([]byte(val), &entry); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal search entry: %w", err)
+			log.Printf("skipping malformed search entry %q: %v", keys[i], err)
+			continue
 		}
 
 		entries = append(entries, interfaces.SearchEntry{
@@ -147,7 +149,7 @@ func (c *Client) GetRecentSearches(ctx context.Context) ([]interfaces.SearchEntr
 			Name:      entry.Name,
 			Realm:     entry.Realm,
 			Region:    entry.Region,
-			Timestamp: entry.Timestamp.Format(time.RFC822),
+			Timestamp: entry.Timestamp.UTC().Format("2 Jan 15:04 UTC"),
 		})
 	}
 

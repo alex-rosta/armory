@@ -61,7 +61,7 @@ func (s *fakeStore) Close() error { return nil }
 
 func newTestBase(t *testing.T, store *fakeStore) *BaseHandler {
 	t.Helper()
-	tm, err := templates.NewManager("../templates")
+	tm, err := templates.NewManager("../templates", "../../assets")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,7 +117,7 @@ func TestCharacterPage(t *testing.T) {
 		if ct := rec.Header().Get("Content-Type"); ct != "text/html; charset=utf-8" {
 			t.Fatalf("Content-Type = %q", ct)
 		}
-		assertContains(t, rec, "Look up character", `name="character"`, `nav-link nav-link-active`)
+		assertContains(t, rec, "Look up character", `name="character"`, `nav-link nav-link-active`, "/assets/css/styles.css?v=", "/assets/js/app.js?v=")
 		assertNotContains(t, rec, "htmx", "unpkg", "cdn.jsdelivr")
 		if len(store.recorded) != 0 {
 			t.Fatal("empty form must not record a search")
@@ -297,6 +297,23 @@ func TestRecentSearchesPage(t *testing.T) {
 		}
 		assertNotContains(t, rec, "redis down")
 	})
+}
+
+func TestNormalizeRealm(t *testing.T) {
+	for in, want := range map[string]string{
+		"Defias Brotherhood":  "defias-brotherhood",
+		"Quel'Thalas":         "quelthalas",
+		"Cho’gall":            "chogall",
+		"Pozzo dell'Eternità": "pozzo-delleternita",
+		"Marécage de Zangar":  "marecage-de-zangar",
+		"  Azjol-Nerub  ":     "azjol-nerub",
+		"Los    Errantes":     "los-errantes",
+		"":                    "",
+	} {
+		if got := normalizeRealm(in); got != want {
+			t.Errorf("normalizeRealm(%q) = %q, want %q", in, got, want)
+		}
+	}
 }
 
 func TestTokenPage(t *testing.T) {
