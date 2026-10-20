@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"wowarmory/internal/interfaces"
 	"wowarmory/internal/models"
 )
@@ -18,11 +17,6 @@ type CharacterHandler struct {
 
 // Ensure CharacterHandler implements Handler interface
 var _ interfaces.Handler = (*CharacterHandler)(nil)
-
-// GetName returns the name of the handler
-func (h *CharacterHandler) GetName() string {
-	return "CharacterHandler"
-}
 
 // NewCharacterHandler creates a new CharacterHandler
 func NewCharacterHandler(base *BaseHandler, blizzardClient interfaces.BlizzardAPI) *CharacterHandler {
@@ -38,36 +32,44 @@ func (h *CharacterHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
 	router.HandleFunc("/character", h.GetCharacterTemplate)
 }
 
+// fetchCharacter loads and processes a character from the Blizzard API
+func (h *CharacterHandler) fetchCharacter(region, realm, character string) (models.CharacterData, error) {
+	accessToken, err := h.blizzardClient.GetAccessToken()
+	if err != nil {
+		return models.CharacterData{}, fmt.Errorf("getting access token: %w", err)
+	}
+
+	profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
+	if err != nil {
+		return models.CharacterData{}, fmt.Errorf("getting character profile: %w", err)
+	}
+
+	return models.NewCharacterData(profileData, region)
+}
+
 // LookupCharacter handles the character lookup request
 func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Request) {
-	// Check if character parameters are provided in the URL
-	region := strings.ToLower(r.URL.Query().Get("region"))
-	realm := strings.ToLower(r.URL.Query().Get("realm"))
-	character := strings.ToLower(r.URL.Query().Get("character"))
+	// "/" is a subtree pattern, so reject anything that is not the root path
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	region, realm, character := lookupParams(r, "character")
 
 	// If all parameters are provided, display character data
 	if region != "" && realm != "" && character != "" {
-		accessToken, err := h.blizzardClient.GetAccessToken()
-		if err != nil {
-			log.Printf("error getting access token: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		if !validLookup(region, realm, character) {
+			http.Error(w, "Invalid parameters", http.StatusBadRequest)
 			return
 		}
 
-		profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
+		characterData, err := h.fetchCharacter(region, realm, character)
 		if err != nil {
-			log.Printf("error getting character profile: %v", err)
-			url := blizzardArmoryURL(region, realm, character)
-			if err := h.RenderError(w, "character", url); err != nil {
+			log.Printf("error loading character: %v", err)
+			if err := h.RenderError(w, "character", blizzardArmoryURL(region, realm, character)); err != nil {
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
 			}
-			return
-		}
-
-		characterData, err := models.NewCharacterData(profileData, region)
-		if err != nil {
-			log.Printf("error processing character data: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
@@ -95,7 +97,6 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 			"MainRawImage":      characterData.MainRawImage,
 		}
 
-		// Execute character template with master layout
 		if err := h.RenderWithLayout(w, "character", layoutData); err != nil {
 			log.Printf("error executing template: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -116,36 +117,20 @@ func (h *CharacterHandler) LookupCharacter(w http.ResponseWriter, r *http.Reques
 
 // GetCharacterTemplate handles the htmx request for the character template
 func (h *CharacterHandler) GetCharacterTemplate(w http.ResponseWriter, r *http.Request) {
-	region := strings.ToLower(r.URL.Query().Get("region"))
-	realm := strings.ToLower(r.URL.Query().Get("realm"))
-	character := strings.ToLower(r.URL.Query().Get("character"))
+	region, realm, character := lookupParams(r, "character")
 
-	if region == "" || realm == "" || character == "" {
-		http.Error(w, "Missing required parameters", http.StatusBadRequest)
+	if !validLookup(region, realm, character) {
+		http.Error(w, "Missing or invalid parameters", http.StatusBadRequest)
 		return
 	}
 
-	accessToken, err := h.blizzardClient.GetAccessToken()
+	data, err := h.fetchCharacter(region, realm, character)
 	if err != nil {
-		log.Printf("error getting access token: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	profileData, err := h.blizzardClient.GetCharacterProfile(accessToken, region, realm, character)
-	if err != nil {
-		log.Printf("error getting character profile: %v", err)
-		w.WriteHeader(http.StatusNotFound)
-		if err := h.RenderTemplate(w, "error", map[string]string{"url": blizzardArmoryURL(region, realm, character)}); err != nil {
+		log.Printf("error loading character: %v", err)
+		if err := h.RenderTemplateStatus(w, http.StatusNotFound, "error", map[string]string{"url": blizzardArmoryURL(region, realm, character)}); err != nil {
 			log.Printf("error executing template: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
-		return
-	}
-
-	data, err := models.NewCharacterData(profileData, region)
-	if err != nil {
-		log.Printf("error processing character data: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

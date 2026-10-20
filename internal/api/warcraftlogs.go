@@ -17,11 +17,6 @@ type WarcraftlogsClient struct {
 // Ensure WarcraftlogsClient implements WarcraftLogsAPI interface
 var _ interfaces.WarcraftLogsAPI = (*WarcraftlogsClient)(nil)
 
-// GetClientName returns the name of the client
-func (c *WarcraftlogsClient) GetClientName() string {
-	return "WarcraftLogsAPI"
-}
-
 // NewWarcraftlogsClient creates a new Warcraftlogs API client
 func NewWarcraftlogsClient(accessToken string) *WarcraftlogsClient {
 	client := graphql.NewClient("https://www.warcraftlogs.com/api/v2/client")

@@ -16,11 +16,6 @@ type RecentSearchesHandler struct {
 // Ensure RecentSearchesHandler implements Handler interface
 var _ interfaces.Handler = (*RecentSearchesHandler)(nil)
 
-// GetName returns the name of the handler
-func (h *RecentSearchesHandler) GetName() string {
-	return "RecentSearchesHandler"
-}
-
 // NewRecentSearchesHandler creates a new RecentSearchesHandler
 func NewRecentSearchesHandler(base *BaseHandler) *RecentSearchesHandler {
 	return &RecentSearchesHandler{
@@ -38,7 +33,7 @@ func (h *RecentSearchesHandler) RegisterRoutes(router interfaces.RouteRegistrar)
 func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *http.Request) {
 	layoutData := map[string]interface{}{
 		"PageTitle": "Recent Searches",
-		"ActiveTab": "recent-searches",
+		"ActiveTab": "recent",
 	}
 
 	if err := h.RenderWithLayout(w, "recent_searches_container", layoutData); err != nil {

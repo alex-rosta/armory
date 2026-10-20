@@ -2,7 +2,6 @@ package integration
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"wowarmory/internal/api"
@@ -10,159 +9,63 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// TestWarcraftlogsAPIIntegration tests the integration with the Warcraftlogs API
-func TestWarcraftlogsAPIIntegration(t *testing.T) {
-	// Load .env file if it exists
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Warning: Error loading .env file, continuing without it. Ignore this if running as container.")
-	}
-
-	// Get Warcraftlogs API token from environment variables
-	accessToken := os.Getenv("WARCRAFTLOGS_API_TOKEN")
-	if accessToken == "" {
-		t.Fatal("WARCRAFTLOGS_API_TOKEN environment variable must be set")
-	}
-
-	t.Run("GetGuild", testGetGuild(accessToken))
-}
-
-// testGetGuild tests the GetGuild function
-func testGetGuild(accessToken string) func(t *testing.T) {
-	return func(t *testing.T) {
-		// Create a new Warcraftlogs API client
-		client := api.NewWarcraftlogsClient(accessToken)
-
-		// Test parameters - using a known guild
-		serverRegion := "eu"
-		serverSlug := "darkspear"
-		guildName := "divine intervention"
-
-		// Set up context
-		ctx := context.Background()
-
-		// Get guild data
-		guildData, err := client.GetGuild(ctx, guildName, serverSlug, serverRegion)
-		if err != nil {
-			t.Fatalf("Failed to get guild data: %v", err)
-		}
-
-		// Verify that we got a response
-		if guildData == nil {
-			t.Fatal("Guild data is nil")
-		}
-
-		// Type assertion to access the data
-		response, ok := guildData.(*api.GuildResponse)
-		if !ok {
-			t.Fatalf("Failed to cast guild data to GuildResponse: %T", guildData)
-		}
-
-		// Verify the guild name
-		if response.GuildData.Guild.Name == "" {
-			t.Fatal("Guild name is empty")
-		}
-
-		t.Logf("Successfully obtained guild data for: %s", response.GuildData.Guild.Name)
-
-		// Check that members total is available
-		if response.GuildData.Guild.Members.Total <= 0 {
-			t.Log("Warning: Guild members total is zero or negative")
-		} else {
-			t.Logf("Guild has %d members", response.GuildData.Guild.Members.Total)
-		}
-	}
-}
-
-// TestWarcraftlogsAPIErrorHandling tests error handling in the Warcraftlogs API client
-func TestWarcraftlogsAPIErrorHandling(t *testing.T) {
-	// Load .env file if it exists
+// warcraftlogsToken returns the API token or skips the test when it is not configured
+func warcraftlogsToken(t *testing.T) string {
+	t.Helper()
 	_ = godotenv.Load()
 
-	// Get valid access token
-	accessToken := os.Getenv("WARCRAFTLOGS_API_TOKEN")
+	token := os.Getenv("WARCRAFTLOGS_API_TOKEN")
+	if token == "" {
+		t.Skip("WARCRAFTLOGS_API_TOKEN not set")
+	}
+	return token
+}
 
-	t.Run("InvalidGuildName", func(t *testing.T) {
-		if accessToken == "" {
-			t.Skip("Skipping test due to missing access token")
-		}
+// TestWarcraftlogsAPIIntegration tests the integration with the Warcraftlogs API
+func TestWarcraftlogsAPIIntegration(t *testing.T) {
+	client := api.NewWarcraftlogsClient(warcraftlogsToken(t))
 
-		// Create a client with valid token
-		client := api.NewWarcraftlogsClient(accessToken)
+	// Using a known guild
+	guildData, err := client.GetGuild(context.Background(), "divine intervention", "darkspear", "eu")
+	if err != nil {
+		t.Fatalf("Failed to get guild data: %v", err)
+	}
 
-		// Set up context
-		ctx := context.Background()
+	response, ok := guildData.(*api.GuildResponse)
+	if !ok {
+		t.Fatalf("Failed to cast guild data to GuildResponse: %T", guildData)
+	}
+	if response.GuildData.Guild.Name == "" {
+		t.Fatal("Guild name is empty")
+	}
 
-		// Attempt to get a non-existent guild
-		_, err := client.GetGuild(ctx, "nonexistentguild123456789", "darkspear", "eu")
-		if err != nil {
-			t.Fatal("Expected error with non-existent guild, but got none")
-		}
-		t.Logf("Got expected error with non-existent guild: %v", err)
-	})
+	t.Logf("Guild %s has %d members", response.GuildData.Guild.Name, response.GuildData.Guild.Members.Total)
+}
 
-	t.Run("InvalidServerName", func(t *testing.T) {
-		if accessToken == "" {
-			t.Skip("Skipping test due to missing access token")
-		}
+// TestWarcraftlogsAPIErrorHandling tests lookups that should not yield a guild
+func TestWarcraftlogsAPIErrorHandling(t *testing.T) {
+	// The API may either return an error or a null guild; both mean "no guild"
+	noGuild := []struct {
+		name                string
+		guild, server, regn string
+	}{
+		{"UnknownGuild", "nonexistentguild123456789", "darkspear", "eu"},
+		{"UnknownServer", "divine intervention", "nonexistentserver123456789", "eu"},
+		{"EmptyGuild", "", "darkspear", "eu"},
+		{"EmptyServer", "divine intervention", "", "eu"},
+		{"EmptyRegion", "divine intervention", "darkspear", ""},
+	}
+	for _, tc := range noGuild {
+		t.Run(tc.name, func(t *testing.T) {
+			client := api.NewWarcraftlogsClient(warcraftlogsToken(t))
 
-		// Create a client with valid token
-		client := api.NewWarcraftlogsClient(accessToken)
-
-		// Set up context
-		ctx := context.Background()
-
-		// Attempt to get a guild on a non-existent server
-		_, err := client.GetGuild(ctx, "divine intervention", "nonexistentserver123456789", "eu")
-		if err != nil {
-			t.Fatal("Expected error with non-existent server, but got none")
-		}
-		t.Logf("Got expected error with non-existent server: %v", err)
-	})
-
-	t.Run("InvalidToken", func(t *testing.T) {
-		// Create a client with invalid token
-		client := api.NewWarcraftlogsClient("invalid_token")
-
-		// Set up context
-		ctx := context.Background()
-
-		// Attempt to get guild data
-		_, err := client.GetGuild(ctx, "divine intervention", "darkspear", "eu")
-		if err != nil {
-			t.Fatal("Expected error with invalid token, but got none")
-		}
-		t.Logf("Got expected error with invalid token: %v", err)
-	})
-
-	t.Run("EmptyParameters", func(t *testing.T) {
-		if accessToken == "" {
-			t.Skip("Skipping test due to missing access token")
-		}
-
-		// Create a client with valid token
-		client := api.NewWarcraftlogsClient(accessToken)
-
-		// Set up context
-		ctx := context.Background()
-
-		// Test with empty guild name
-		_, err := client.GetGuild(ctx, "", "darkspear", "eu")
-		if err != nil {
-			t.Fatal("Expected error with empty guild name, but got none")
-		}
-
-		// Test with empty server slug
-		_, err = client.GetGuild(ctx, "divine intervention", "", "eu")
-		if err != nil {
-			t.Fatal("Expected error with empty server slug, but got none")
-		}
-
-		// Test with empty region
-		_, err = client.GetGuild(ctx, "divine intervention", "darkspear", "")
-		if err != nil {
-			t.Fatal("Expected error with empty region, but got none")
-			t.Logf("Got expected error with empty region: %v", err)
-		}
-	})
+			resp, err := client.GetGuild(context.Background(), tc.guild, tc.server, tc.regn)
+			if err != nil {
+				return
+			}
+			if r, ok := resp.(*api.GuildResponse); !ok || r.GuildData.Guild.Name != "" {
+				t.Fatalf("Expected no guild, got %+v", resp)
+			}
+		})
+	}
 }

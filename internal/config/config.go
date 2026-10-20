@@ -19,6 +19,8 @@ type Config struct {
 	AssetsDir            string
 	Redis                RedisConfig
 	WarcraftlogsAPIToken string
+	// ClientIPHeader names a header set by a trusted reverse proxy (e.g. Fly-Client-IP); empty uses the TCP peer address
+	ClientIPHeader string
 }
 
 // RedisConfig holds Redis-specific configuration
@@ -42,9 +44,10 @@ func Load() (*Config, error) {
 	port := 3000 // Default port
 	if portStr != "" {
 		portInt, err := strconv.Atoi(portStr)
-		if err == nil {
-			port = portInt
+		if err != nil || portInt < 1 || portInt > 65535 {
+			return nil, fmt.Errorf("invalid PORT %q", portStr)
 		}
+		port = portInt
 	}
 
 	// Get client ID and secret from environment variables
@@ -117,6 +120,7 @@ func Load() (*Config, error) {
 		TemplatesDir:         templatesDir,
 		AssetsDir:            assetsDir,
 		WarcraftlogsAPIToken: warcraftlogsAPIToken,
+		ClientIPHeader:       os.Getenv("CLIENT_IP_HEADER"),
 		Redis: RedisConfig{
 			Addr:     redisAddr,
 			Password: redisPassword,

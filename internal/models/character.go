@@ -1,37 +1,5 @@
 package models
 
-// CharacterProfile represents the raw character profile data from the Blizzard API
-type CharacterProfile struct {
-	Level             int    `json:"level"`
-	Name              string `json:"name"`
-	ItemLevel         int    `json:"average_item_level"`
-	AchievementPoints int    `json:"achievement_points"`
-	Realm             struct {
-		Name string `json:"name"`
-	} `json:"realm"`
-	Faction struct {
-		Name string `json:"name"`
-	} `json:"faction"`
-	Guild struct {
-		Name string `json:"name"`
-	} `json:"guild"`
-	Class struct {
-		Name string `json:"name"`
-	} `json:"character_class"`
-	ActiveSpec struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"active_spec"`
-	Health    int `json:"health"`
-	PowerType struct {
-		Name string `json:"name"`
-	} `json:"power_type"`
-	Power   int `json:"power"`
-	Stamina struct {
-		Effective int `json:"effective"`
-	} `json:"stamina"`
-}
-
 // CharacterMedia represents the character media data from the Blizzard API
 type CharacterMedia struct {
 	Assets []struct {
@@ -69,9 +37,8 @@ type CharacterData struct {
 	Class struct {
 		Name string
 	}
-	CharacterImages CharacterMedia
-	MainRawImage    string
-	Guild           struct {
+	MainRawImage string
+	Guild        struct {
 		Name string
 	}
 	Health    int
@@ -189,7 +156,6 @@ func NewCharacterData(profileData map[string]interface{}, region string) (Charac
 		}
 	}
 
-	data.CharacterImages = characterimages
 	data.MainRawImage = characterimages.GetMainRawImage()
 
 	return data, nil

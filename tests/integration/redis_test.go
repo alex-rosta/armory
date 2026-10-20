@@ -36,6 +36,12 @@ func TestRedisIntegration(t *testing.T) {
 	}
 
 	// Run subtests
+	if probe, err := redis.NewClient(redisConfig); err != nil {
+		t.Skipf("Redis not reachable at %s: %v", redisAddr, err)
+	} else {
+		probe.Close()
+	}
+
 	t.Run("NewClient", testNewClient(redisConfig))
 	t.Run("RecordSearch", testRecordSearch(redisConfig))
 	t.Run("GetRecentSearches", testGetRecentSearches(redisConfig))

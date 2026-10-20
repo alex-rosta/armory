@@ -1,14 +1,11 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
+	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
-	"time"
 	"wowarmory/internal/interfaces"
 )
 
@@ -17,8 +14,6 @@ import (
 var validRegions = map[string]bool{
 	"us": true,
 	"eu": true,
-	"kr": true,
-	"tw": true,
 }
 
 // ValidRegion reports whether region is an allowed Blizzard API region
@@ -28,71 +23,31 @@ func ValidRegion(region string) bool {
 
 // BlizzardClient is a client for the Blizzard API
 type BlizzardClient struct {
-	clientID     string
-	clientSecret string
-	httpClient   *http.Client
+	tokens     *tokenSource
+	httpClient *http.Client
+	// apiURLFormat is formatted with the region to build the API base URL
+	apiURLFormat string
 }
 
 // Ensure BlizzardClient implements BlizzardAPI interface
 var _ interfaces.BlizzardAPI = (*BlizzardClient)(nil)
 
-// GetClientName returns the name of the client
-func (c *BlizzardClient) GetClientName() string {
-	return "BlizzardAPI"
-}
-
 // NewBlizzardClient creates a new Blizzard API client
 func NewBlizzardClient(clientID, clientSecret string) *BlizzardClient {
 	return &BlizzardClient{
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		httpClient:   &http.Client{Timeout: 10 * time.Second},
+		tokens:       newTokenSource(clientID, clientSecret),
+		httpClient:   newHTTPClient(),
+		apiURLFormat: "https://%s.api.blizzard.com",
 	}
 }
 
-// GetAccessToken gets an access token from the Blizzard API
+// GetAccessToken gets an access token from the Blizzard API; tokens are cached until shortly before expiry
 func (c *BlizzardClient) GetAccessToken() (string, error) {
-	if c.clientID == "" || c.clientSecret == "" {
-		return "", fmt.Errorf("missing client ID or client secret")
-	}
-
-	url := "https://oauth.battle.net/oauth/token"
-	req, err := http.NewRequest("POST", url, strings.NewReader("grant_type=client_credentials"))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-	req.SetBasicAuth(c.clientID, c.clientSecret)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("failed to get access token: %s (status code: %d)", string(body), resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return "", fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	accessToken, ok := result["access_token"].(string)
-	if !ok {
-		return "", fmt.Errorf("unable to get access token from response")
-	}
-	return accessToken, nil
+	return c.tokens.Token()
 }
 
-// GetCharacterProfile gets a character profile from the Blizzard API
+// GetCharacterProfile gets a character profile from the Blizzard API.
+// The profile endpoint is required; media and statistics are best-effort.
 func (c *BlizzardClient) GetCharacterProfile(accessToken, region, realm, character string) (map[string]interface{}, error) {
 	if accessToken == "" {
 		return nil, fmt.Errorf("missing access token")
@@ -104,90 +59,59 @@ func (c *BlizzardClient) GetCharacterProfile(accessToken, region, realm, charact
 		return nil, fmt.Errorf("invalid region: %q", region)
 	}
 
-	base := fmt.Sprintf("https://%s.api.blizzard.com/profile/wow/character/%s/%s",
+	base := fmt.Sprintf(c.apiURLFormat+"/profile/wow/character/%s/%s",
 		region, url.PathEscape(realm), url.PathEscape(character))
 	query := fmt.Sprintf("?namespace=profile-%s&locale=en_US", region)
 
+	// Index 0 is the required profile; the rest only add optional fields
 	endpoints := []string{
 		base + query,
 		base + "/character-media" + query,
 		base + "/statistics" + query,
 	}
 
-	// Create a channel to receive responses from goroutines
-	type apiResponse struct {
-		data map[string]interface{}
-		err  error
-	}
-	ch := make(chan apiResponse, len(endpoints))
+	results := make([]map[string]interface{}, len(endpoints))
+	errs := make([]error, len(endpoints))
 
 	var wg sync.WaitGroup
-	wg.Add(len(endpoints))
-
-	for _, url := range endpoints {
-		go func(url string) {
+	for i, endpoint := range endpoints {
+		wg.Add(1)
+		go func(i int, endpoint string) {
 			defer wg.Done()
-			data, err := c.fetchAPI(url, accessToken)
-			ch <- apiResponse{data, err}
-		}(url)
+			results[i], errs[i] = c.fetchAPI(endpoint, accessToken)
+		}(i, endpoint)
+	}
+	wg.Wait()
+
+	if errs[0] != nil {
+		return nil, errs[0]
 	}
 
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
-
-	// Combine the data from all endpoints
-	combinedData := make(map[string]interface{})
-	var firstError error
-
-	for response := range ch {
-		if response.err != nil {
-			if firstError == nil {
-				firstError = response.err
-			}
+	combined := make(map[string]interface{})
+	for i := len(results) - 1; i >= 0; i-- {
+		if errs[i] != nil {
+			log.Printf("optional character endpoint failed: %v", errs[i])
 			continue
 		}
-		for k, v := range response.data {
-			combinedData[k] = v
+		for k, v := range results[i] {
+			combined[k] = v
 		}
 	}
 
-	if firstError != nil && len(combinedData) == 0 {
-		return nil, firstError
-	}
-
-	return combinedData, nil
+	return combined, nil
 }
 
 // fetchAPI fetches data from a Blizzard API endpoint
-func (c *BlizzardClient) fetchAPI(url, accessToken string) (map[string]interface{}, error) {
-	req, err := http.NewRequest("GET", url, nil)
+func (c *BlizzardClient) fetchAPI(endpoint, accessToken string) (map[string]interface{}, error) {
+	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to fetch API data: %s (status code: %d)", string(body), resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
 	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
+	if err := getJSON(c.httpClient, req, &result); err != nil {
+		return nil, err
 	}
-
 	return result, nil
 }

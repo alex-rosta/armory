@@ -1,4 +1,7 @@
 .env
+.env.*
 .air.toml
 .git
 .gitignore
+tmp
+node_modules
