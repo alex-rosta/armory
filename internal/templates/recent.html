@@ -1,0 +1,40 @@
+{{ define "recent_page" }}
+{{ template "header" . }}
+<div class="mb-6">
+  <h1 class="page-title">Recent searches</h1>
+  <p class="text-muted">What other people have looked up over the last 24 hours.</p>
+</div>
+
+{{ if .Searches }}
+  <ul class="surface divide-y divide-slate-200 dark:divide-slate-800">
+    {{ range .Searches }}
+      <li>
+        <a
+          href="{{ if eq .Type "guild" }}/guild-lookup?region={{ .Region }}&amp;realm={{ .Realm }}&amp;guild={{ .Name }}{{ else }}/?region={{ .Region }}&amp;realm={{ .Realm }}&amp;character={{ .Name }}{{ end }}"
+          class="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/60 sm:px-6"
+        >
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
+            <i class="bi {{ if eq .Type "guild" }}bi-people-fill{{ else }}bi-person-fill{{ end }}" aria-hidden="true"></i>
+            <span class="sr-only">{{ .Type }}</span>
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-medium">{{ display .Name }}</span>
+            <span class="block truncate text-sm text-muted">{{ display .Realm }} · {{ upper .Region }}</span>
+          </span>
+          <span class="hidden shrink-0 text-sm text-muted sm:block">{{ .Timestamp }}</span>
+          <i class="bi bi-chevron-right text-muted" aria-hidden="true"></i>
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+  <p class="mt-4 text-center text-sm text-muted">Showing the {{ len .Searches }} most recent searches.</p>
+{{ else }}
+  <section class="surface p-8 text-center">
+    <i class="bi bi-clock-history text-4xl text-muted" aria-hidden="true"></i>
+    <h2 class="mt-3 text-lg font-semibold">Nothing here yet</h2>
+    <p class="text-muted">Look up a character or guild and it will show up here.</p>
+    <a href="/" class="btn btn-primary mt-5"><i class="bi bi-search" aria-hidden="true"></i> Search for a character</a>
+  </section>
+{{ end }}
+{{ template "footer" . }}
+{{ end }}

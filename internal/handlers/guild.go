@@ -2,12 +2,9 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
-	"time"
 	"wowarmory/internal/interfaces"
 	"wowarmory/internal/models"
 )
@@ -32,107 +29,43 @@ func NewGuildHandler(base *BaseHandler, warcraftlogsClient interfaces.WarcraftLo
 // RegisterRoutes registers the handler's routes with the router
 func (h *GuildHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
 	router.HandleFunc("/guild-lookup", h.LookupGuild)
-	router.HandleFunc("/guild", h.GetGuildTemplate)
+}
+
+// LookupGuild shows the guild search form and, when parameters are given, the result
+func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
+	h.serveLookup(w, r, lookupConfig{
+		Tab:        "guild",
+		Template:   "guild_page",
+		ResultKey:  "Guild",
+		Title:      "Guild lookup",
+		SearchType: interfaces.GuildSearchType,
+		NameParam:  "guild",
+		Form: SearchForm{
+			Action:          "/guild-lookup",
+			NameParam:       "guild",
+			NameLabel:       "Guild name",
+			NamePlaceholder: "e.g. divine intervention",
+			SubmitLabel:     "Look up guild",
+		},
+		ExternalURL: func(q Lookup) string { return warcraftlogsGuildURL(q.Region, q.Realm, q.Name) },
+		Fetch: func(ctx context.Context, q Lookup) (interface{}, string, error) {
+			guild, err := h.fetchGuild(ctx, q)
+			if err != nil {
+				return nil, "", err
+			}
+			return guild, guild.Name, nil
+		},
+	})
 }
 
 // fetchGuild loads and processes a guild from the Warcraftlogs API
-func (h *GuildHandler) fetchGuild(ctx context.Context, region, realm, guild string) (*models.GuildData, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	guildResponse, err := h.warcraftlogsClient.GetGuild(ctx, guild, realm, region)
+func (h *GuildHandler) fetchGuild(ctx context.Context, q Lookup) (*models.GuildData, error) {
+	guildResponse, err := h.warcraftlogsClient.GetGuild(ctx, q.Name, q.Realm, q.Region)
 	if err != nil {
 		return nil, fmt.Errorf("getting guild data: %w", err)
 	}
 
-	return models.NewGuildData(guildResponse, region, realm)
-}
-
-// LookupGuild handles the guild lookup request
-func (h *GuildHandler) LookupGuild(w http.ResponseWriter, r *http.Request) {
-	region, realm, guild := lookupParams(r, "guild")
-
-	// If all parameters are provided, display guild data
-	if region != "" && realm != "" && guild != "" {
-		if !validLookup(region, realm, guild) {
-			http.Error(w, "Invalid parameters", http.StatusBadRequest)
-			return
-		}
-
-		guildData, err := h.fetchGuild(r.Context(), region, realm, guild)
-		if err != nil {
-			log.Printf("error loading guild: %v", err)
-			if err := h.RenderError(w, "guild", warcraftlogsGuildURL(region, realm, guild)); err != nil {
-				http.Error(w, "Internal server error", http.StatusInternalServerError)
-			}
-			return
-		}
-
-		h.RecordSearch(r, string(interfaces.GuildSearchType), region, realm, guild)
-
-		layoutData := map[string]interface{}{
-			"PageTitle":       guildData.Name,
-			"ActiveTab":       "guild",
-			"ContainerClass":  "guild-container",
-			"Name":            guildData.Name,
-			"Realm":           guildData.Realm,
-			"Region":          guildData.Region,
-			"MemberCount":     guildData.MemberCount,
-			"ServerRank":      guildData.ServerRank,
-			"ServerRankColor": guildData.ServerRankColor,
-			"RegionRank":      guildData.RegionRank,
-			"RegionRankColor": guildData.RegionRankColor,
-			"WorldRank":       guildData.WorldRank,
-			"WorldRankColor":  guildData.WorldRankColor,
-			"Members":         guildData.Members,
-		}
-
-		if err := h.RenderWithLayout(w, "guild", layoutData); err != nil {
-			log.Printf("error executing template: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	// If no parameters, show the form
-	layoutData := map[string]interface{}{
-		"PageTitle": "Guild Lookup",
-		"ActiveTab": "guild",
-	}
-
-	if err := h.RenderWithLayout(w, "guild_form", layoutData); err != nil {
-		log.Printf("error executing template: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
-// GetGuildTemplate handles the htmx request for the guild template
-func (h *GuildHandler) GetGuildTemplate(w http.ResponseWriter, r *http.Request) {
-	region, realm, guild := lookupParams(r, "guild")
-
-	if !validLookup(region, realm, guild) {
-		http.Error(w, "Missing or invalid parameters", http.StatusBadRequest)
-		return
-	}
-
-	data, err := h.fetchGuild(r.Context(), region, realm, guild)
-	if err != nil {
-		if !errors.Is(err, models.ErrGuildNotFound) {
-			log.Printf("error loading guild: %v", err)
-		}
-		if err := h.RenderTemplateStatus(w, http.StatusNotFound, "error", map[string]string{"url": warcraftlogsGuildURL(region, realm, guild)}); err != nil {
-			log.Printf("error executing template: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	h.RecordSearch(r, string(interfaces.GuildSearchType), region, realm, guild)
-
-	if err := h.RenderTemplate(w, "guild", data); err != nil {
-		log.Printf("error executing template: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	return models.NewGuildData(guildResponse, q.Region, q.Realm)
 }
 
 func warcraftlogsGuildURL(region, realm, guild string) string {

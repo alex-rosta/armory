@@ -50,7 +50,22 @@ REDIS_PASSWORD=
 REDIS_DB=0
 # Uncomment this if using Redis on Cloud Providers
 #REDIS_CLOUD=true
+
+# Header with the real client IP set by a trusted reverse proxy (used for rate limiting).
+# Leave empty when exposed directly; on Fly.io use Fly-Client-IP.
+CLIENT_IP_HEADER=
 ```
+
+## Frontend
+
+Pages are server-rendered Go templates and all searches are plain `GET` forms, so results have shareable URLs and work without JavaScript. The stylesheet is built with Tailwind; after changing templates or `assets/css/tailwind.css` run:
+
+```bash
+npm install   # first time only
+make css
+```
+
+and commit the regenerated `assets/css/styles.css`.
 
 ## Running the Application
 
@@ -92,8 +107,10 @@ make test
 ```
 wowarmory/
 ├── assets/                  # Static assets
-│   ├── css/                 # CSS files
-│   └── media/               # Images and other media
+│   ├── css/                 # tailwind.css (source) and styles.css (built, committed)
+│   ├── js/                  # Theme toggle and small form enhancements
+│   ├── media/               # Images and other media
+│   └── vendor/              # Self-hosted third-party assets (Bootstrap Icons)
 ├── cmd/                     # Application entry points
 │   └── server/              # Server entry point
 │       └── main.go          # Main application file

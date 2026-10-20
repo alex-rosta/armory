@@ -26,40 +26,23 @@ func NewRecentSearchesHandler(base *BaseHandler) *RecentSearchesHandler {
 // RegisterRoutes registers the handler's routes with the router
 func (h *RecentSearchesHandler) RegisterRoutes(router interfaces.RouteRegistrar) {
 	router.HandleFunc("/recent-searches", h.GetRecentSearchesPage)
-	router.HandleFunc("/recent-searches-data", h.GetRecentSearches)
 }
 
-// GetRecentSearchesPage handles the recent searches page request
+// GetRecentSearchesPage renders the recent searches page
 func (h *RecentSearchesHandler) GetRecentSearchesPage(w http.ResponseWriter, r *http.Request) {
-	layoutData := map[string]interface{}{
-		"PageTitle": "Recent Searches",
-		"ActiveTab": "recent",
-	}
-
-	if err := h.RenderWithLayout(w, "recent_searches_container", layoutData); err != nil {
-		log.Printf("error executing template: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
-// GetRecentSearches handles the htmx request for recent searches data
-func (h *RecentSearchesHandler) GetRecentSearches(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	searches, err := h.redisClient.GetRecentSearches(ctx)
+	searches, err := h.searchStore.GetRecentSearches(ctx)
 	if err != nil {
 		log.Printf("error getting recent searches: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		h.RenderErrorPage(w, http.StatusServiceUnavailable, "Recent searches unavailable", "We couldn't load recent searches right now. Please try again in a moment.")
 		return
 	}
 
-	data := map[string]interface{}{
-		"Searches": searches,
-	}
-
-	if err := h.RenderTemplate(w, "recent_searches", data); err != nil {
-		log.Printf("error executing template: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	h.Render(w, http.StatusOK, "recent_page", map[string]interface{}{
+		"PageTitle": "Recent searches",
+		"ActiveTab": "recent",
+		"Searches":  searches,
+	})
 }

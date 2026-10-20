@@ -1,139 +1,79 @@
-{{ define "character" }}
-<div class="animate-fade-in">
-  <div class="card-wow overflow-hidden">
-    <div class="card-header-wow {{ .Class.Name }} bg-opacity-90 rounded-t-lg">
-      <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between p-4">
-        <!-- Character Header -->
-        <div class="flex items-center mb-4 sm:mb-0">
-          <div class="mr-4 faction-icon transform transition-transform duration-500 hover:scale-110">
-            {{ if eq .Faction.Name "Horde" }}
-              <img src="/assets/media/horde.png" alt="Horde" class="w-16 h-16 object-contain" />
-            {{ else if eq .Faction.Name "Alliance" }}
-              <img src="/assets/media/alliance.png" alt="Alliance" class="w-14 h-14 object-contain" />
-            {{ end }}
-          </div>
-          <div class="text-white">
-            <h2 class="text-2xl font-bold mb-0 text-shadow-lg animate-glow">{{ .Name }}</h2>
-            <p class="mb-0">Level {{ .Level }} {{ .ActiveSpec.Name }} {{ .Class.Name }}</p>
-            {{ if .Guild.Name }}
-              <p class="text-blue-200 dark:text-blue-300">&lt;{{ .Guild.Name }}&gt;</p>
-            {{ end }}
-          </div>
-        </div>
-        
-        <!-- External Links -->
-        <div class="flex space-x-2">
-          <a href="https://www.warcraftlogs.com/character/{{ .Region }}/{{ .Realm.Name }}/{{ .Name }}" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="btn-wow-secondary text-sm">
-            <i class="bi bi-bar-chart-fill mr-1"></i> Logs
-          </a>
-          <a href="https://raider.io/characters/{{ .Region }}/{{ .Realm.Name }}/{{ .Name }}" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="btn-wow-primary text-sm">
-            <i class="bi bi-globe mr-1"></i> Raider.io
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="card-body-wow">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Character Stats -->
-        <div class="md:col-span-1">
-          <div class="card-wow overflow-hidden transform transition hover:scale-[1.01]">
-            <div class="card-header-wow bg-gradient-to-r from-primary-100/40 to-secondary-100/30 dark:from-primary-900/40 dark:to-secondary-900/30">
-              <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300">
-                <i class="bi bi-person-fill mr-2"></i>Character Stats
-              </h3>
-            </div>
-            <div class="card-body-wow">
-              <div class="space-y-4">
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full mr-3">
-                      <i class="bi bi-shield-shaded text-blue-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Item Level</span>
-                  </div>
-                  <span class="px-3 py-1 rounded-full text-sm font-bold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">{{ .ItemLevel }}</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 rounded-full mr-3">
-                      <i class="bi bi-award text-amber-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Achievements</span>
-                  </div>
-                  <span class="px-3 py-1 rounded-full text-sm font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">{{ .AchievementPoints }}</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-red-100 dark:bg-red-900/30 rounded-full mr-3">
-                      <i class="bi bi-heart-half text-red-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Health</span>
-                  </div>
-                  <span class="px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">{{ .Health }}</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/30 rounded-full mr-3">
-                      <i class="bi bi-lightning-charge text-yellow-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">{{ .PowerType.Name }}</span>
-                  </div>
-                  <span class="px-3 py-1 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">{{ .Power }}</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full mr-3">
-                      <i class="bi bi-shield-plus text-purple-500 text-xl"></i>
-                    </div>
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Stamina</span>
-                  </div>
-                  <span class="px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">{{ .Stamina.Effective }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Character Image -->
-        <div class="md:col-span-2">
-          {{ if .MainRawImage }}
-            <div class="relative h-full flex items-center justify-center p-4 overflow-hidden rounded-lg bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-              <img 
-                src="{{ .MainRawImage }}" 
-                class="rounded-lg shadow-2xl transform transition-transform duration-700 hover:scale-105 animate-fade-in max-h-[400px]" 
-                alt="{{ .Name }} character image" 
-              />
-              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-200/70 dark:to-gray-900/70 pointer-events-none"></div>
-            </div>
-          {{ else }}
-            <div class="h-full flex items-center justify-center p-8">
-              <div class="text-center text-gray-500 dark:text-gray-400">
-                <i class="bi bi-image text-6xl mb-4"></i>
-                <p class="text-xl">No character image available</p>
-              </div>
-            </div>
-          {{ end }}
-        </div>
-      </div>
-    </div>
-
-    <div class="card-footer-wow {{ .Class.Name }} text-white/90">
-      <div class="flex items-center justify-center space-x-2">
-        <i class="bi bi-info-circle"></i>
-        <span>Data provided by Blizzard API</span>
-      </div>
-    </div>
-  </div>
+{{ define "character_page" }}
+{{ template "header" . }}
+<div class="mb-6">
+  <h1 class="page-title">Character lookup</h1>
+  <p class="text-muted">Check item level, achievements and core stats for any character.</p>
 </div>
+
+{{ template "search_form" .Form }}
+
+{{ if .Character }}
+  {{ with .Character }}
+  <article class="surface class-{{ classSlug .Class.Name }} mt-6 overflow-hidden">
+    <div class="class-banner">
+      <div class="flex items-center gap-4">
+        {{ if eq .Faction.Name "Horde" }}
+          <img src="/assets/media/horde.png" alt="Horde" class="h-14 w-14 object-contain" width="56" height="56" />
+        {{ else if eq .Faction.Name "Alliance" }}
+          <img src="/assets/media/alliance.png" alt="Alliance" class="h-14 w-14 object-contain" width="56" height="56" />
+        {{ end }}
+        <div class="min-w-0">
+          <h2 class="class-name truncate text-2xl font-bold sm:text-3xl">{{ .Name }}</h2>
+          <p class="text-muted">Level {{ .Level }} {{ .ActiveSpec.Name }} {{ .Class.Name }}</p>
+          <p class="text-sm text-muted">
+            {{ .Realm.Name }} · {{ upper .Region }}{{ if .Guild.Name }} · &lt;{{ .Guild.Name }}&gt;{{ end }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 p-5 sm:p-6 md:grid-cols-5">
+      <dl class="grid grid-cols-2 gap-3 md:col-span-2 md:grid-cols-1">
+        <div class="stat">
+          <dt class="stat-label"><i class="bi bi-shield-shaded text-sky-500" aria-hidden="true"></i> Item level</dt>
+          <dd class="stat-value">{{ .ItemLevel }}</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-label"><i class="bi bi-award text-amber-500" aria-hidden="true"></i> Achievements</dt>
+          <dd class="stat-value">{{ num .AchievementPoints }}</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-label"><i class="bi bi-heart-fill text-red-500" aria-hidden="true"></i> Health</dt>
+          <dd class="stat-value">{{ num .Health }}</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-label"><i class="bi bi-lightning-charge-fill text-yellow-500" aria-hidden="true"></i> {{ if .PowerType.Name }}{{ .PowerType.Name }}{{ else }}Power{{ end }}</dt>
+          <dd class="stat-value">{{ num .Power }}</dd>
+        </div>
+        <div class="stat col-span-2 md:col-span-1">
+          <dt class="stat-label"><i class="bi bi-shield-plus text-purple-500" aria-hidden="true"></i> Stamina</dt>
+          <dd class="stat-value">{{ num .Stamina.Effective }}</dd>
+        </div>
+      </dl>
+
+      <div class="flex items-center justify-center rounded-xl bg-slate-100 p-4 dark:bg-slate-800/60 md:col-span-3">
+        {{ if .MainRawImage }}
+          <img src="{{ .MainRawImage }}" alt="{{ .Name }} character render" class="max-h-[420px] w-auto rounded-lg" loading="lazy" decoding="async" />
+        {{ else }}
+          <div class="py-10 text-center text-muted">
+            <i class="bi bi-image text-5xl" aria-hidden="true"></i>
+            <p class="mt-2">No character image available</p>
+          </div>
+        {{ end }}
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2 border-t border-slate-200 p-4 dark:border-slate-800 sm:px-6">
+      <a href="https://worldofwarcraft.blizzard.com/en-gb/character/{{ $.Form.Region }}/{{ $.Form.Realm }}/{{ $.Form.Name }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Armory</a>
+      <a href="https://www.warcraftlogs.com/character/{{ $.Form.Region }}/{{ $.Form.Realm }}/{{ $.Form.Name }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm"><i class="bi bi-bar-chart-fill" aria-hidden="true"></i> Warcraft Logs</a>
+      <a href="https://raider.io/characters/{{ $.Form.Region }}/{{ $.Form.Realm }}/{{ $.Form.Name }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm"><i class="bi bi-globe" aria-hidden="true"></i> Raider.IO</a>
+    </div>
+  </article>
+  {{ end }}
+{{ else if .NotFound }}
+  {{ template "not_found" . }}
+{{ else if .Unavailable }}
+  {{ template "unavailable" . }}
+{{ end }}
+{{ template "footer" . }}
 {{ end }}
